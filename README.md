@@ -39,6 +39,7 @@ Changing providers only requires editing `config/roles.yaml` and `config/provide
 apps/pi-orchestrator/      Internal Task Manager runner used by RuntimeOrchestrator
 packages/runtime/          HerdR-aware orchestration runtime and adapter
 packages/providers/        Provider interface and provider registry
+packages/pi-extension/     Pi extension source installed by script
 packages/workers/          Worker base and executor worker
 packages/task-manager/     Repository analysis and execution planning
 packages/validator/        Validation worker

@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+const piExtensionPath = "packages/pi-extension/herdr-orchestration.ts";
+
 test("Pi runtime does not instantiate backend role workers directly", async () => {
   const source = await readFile("packages/runtime/src/RuntimeOrchestrator.ts", "utf8");
 
@@ -12,14 +14,14 @@ test("Pi runtime does not instantiate backend role workers directly", async () =
 });
 
 test("Pi queued preplanned approval starts only approved tasks", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /item\.status === "todo" && item\.planApprovalStatus === "approved"/);
   assert.match(source, /if \(queuePlanId\) \{\s+if \(ctx\.mode === "tui"\) \{\s+void processQueue\(pi, ctx\);/s);
 });
 
 test("Pi preserves queued plan confirmation while active task finishes", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /function clearRuntimePlanApprovalState\(\)/);
   assert.match(source, /state\.planApprovalPath\?\.startsWith\("queue:"\)/);
@@ -28,13 +30,14 @@ test("Pi preserves queued plan confirmation while active task finishes", async (
 });
 
 test("Pi plan confirmation uses compact submitted task text", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+	const source = await readFile(piExtensionPath, "utf8");
 
-  assert.match(source, /submittedTask: item\.task/);
-  assert.match(source, /compactTaskText\(payload\.submittedTask \?\? plan\?\.request/);
-  assert.match(source, /subtasks\.slice\(0, 3\)/);
-  assert.match(source, /criteria\.slice\(0, 3\)/);
-  assert.match(source, /herdr-plan-detail/);
+	assert.match(source, /submittedTask: item\.task/);
+	assert.match(source, /compactTaskText\(payload\.submittedTask \?\? plan\?\.request/);
+	assert.match(source, /function formatTechnology\(value: unknown\)/);
+	assert.match(source, /subtasks\.slice\(0, 3\)/);
+	assert.match(source, /criteria\.slice\(0, 3\)/);
+	assert.match(source, /herdr-plan-detail/);
   assert.match(source, /function renderPlanDetail/);
   assert.match(source, /User clarification/);
 });
@@ -50,14 +53,14 @@ test("Runtime auto publishes git changes after validation passes", async () => {
 });
 
 test("Pi passes explicit tribe manager config path to runtime", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /tribeManagerConfigPath/);
   assert.match(source, /PI_ORCHESTRATION_TRIBE_MANAGER_PATH/);
 });
 
 test("Pi has a manual command to resume stuck todo tasks", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /herdr-run-todo/);
   assert.match(source, /Starting approved todo task/);
@@ -66,7 +69,7 @@ test("Pi has a manual command to resume stuck todo tasks", async () => {
 });
 
 test("Pi can requeue failed tasks for rework", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /herdr-retry-failed/);
   assert.match(source, /function retryFailedTask/);
@@ -75,7 +78,7 @@ test("Pi can requeue failed tasks for rework", async () => {
 });
 
 test("Pi auto-reworks only git or mcp related failures", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /enqueueValidationFixTask/);
   assert.match(source, /Fix validation failure for/);
@@ -86,7 +89,7 @@ test("Pi auto-reworks only git or mcp related failures", async () => {
 });
 
 test("Pi displays validator progress and result cards", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /ValidationPassed/);
   assert.match(source, /ValidationFailed/);
@@ -94,7 +97,7 @@ test("Pi displays validator progress and result cards", async () => {
 });
 
 test("Pi normal conversation is not automatically queued as a task", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /pi\.on\("input"/);
   assert.match(source, /return \{ action: "continue" \}/);
@@ -103,14 +106,14 @@ test("Pi normal conversation is not automatically queued as a task", async () =>
 });
 
 test("Pi queue rows are single-line ellipsized", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /ellipsis\(item\.task, 120\)/);
   assert.match(source, /text\.replace\(\/\\s\+\/g, " "\)/);
 });
 
 test("Pi surfaces pending queued plan as the next action", async () => {
-  const source = await readFile(".pi/extensions/herdr-orchestration.ts", "utf8");
+  const source = await readFile(piExtensionPath, "utf8");
 
   assert.match(source, /function nextQueueAction/);
   assert.match(source, /Next: \/herdr-confirm to approve/);

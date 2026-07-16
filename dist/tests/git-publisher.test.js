@@ -103,14 +103,20 @@ const execFileAsync = (0, node_util_1.promisify)(node_child_process_1.execFile);
     await (0, promises_1.mkdir)(remotes);
     const repo = await createRepository(project, remotes, "repo-a");
     await (0, promises_1.writeFile)((0, node_path_1.join)(repo, "feature.txt"), "feature\n", "utf8");
+    let instruction = "";
     const result = await (0, GitPublisher_1.publishTaskChanges)(project, "task-test", "raw task text should be ignored", {
-        commitMessageProvider: fakeCommitMessageProvider("fix generated subject"),
+        commitMessageProvider: fakeCommitMessageProvider("fix generated subject", (task) => {
+            instruction = task.instruction;
+        }),
         logPath: (0, node_path_1.join)(root, "commit-message.log"),
         workspacePath: (0, node_path_1.join)(root, "workspace")
     });
     const subject = await gitOutput(repo, ["log", "-1", "--format=%s"]);
     strict_1.default.equal(result.committed, true);
     strict_1.default.equal(subject.trim(), "fix generated subject");
+    strict_1.default.match(instruction, /Describe the actual behavior changed/);
+    strict_1.default.match(instruction, /Avoid generic subjects/);
+    strict_1.default.doesNotMatch(instruction, /raw task text should be ignored/);
 });
 async function createRepository(project, remotes, name) {
     const repo = (0, node_path_1.join)(project, name);
@@ -133,12 +139,13 @@ async function git(cwd, args) {
 async function gitOutput(cwd, args) {
     return (await execFileAsync("git", args, { cwd })).stdout;
 }
-function fakeCommitMessageProvider(subject) {
+function fakeCommitMessageProvider(subject, onTask) {
     return {
         name: "fake",
         async start() { },
         async stop() { },
         async executeTask(task) {
+            onTask?.(task);
             await (0, promises_1.appendFile)(task.logPath, `HERDR_COMMIT_JSON {"subject":"${subject}"}\n`);
             return { success: true, exitCode: 0, summary: "ok" };
         },

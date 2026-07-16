@@ -123,8 +123,11 @@ test("uses provider-generated commit subject when available", async () => {
   const repo = await createRepository(project, remotes, "repo-a");
   await writeFile(join(repo, "feature.txt"), "feature\n", "utf8");
 
+  let instruction = "";
   const result = await publishTaskChanges(project, "task-test", "raw task text should be ignored", {
-    commitMessageProvider: fakeCommitMessageProvider("fix generated subject"),
+    commitMessageProvider: fakeCommitMessageProvider("fix generated subject", (task) => {
+      instruction = task.instruction;
+    }),
     logPath: join(root, "commit-message.log"),
     workspacePath: join(root, "workspace")
   });
@@ -132,6 +135,9 @@ test("uses provider-generated commit subject when available", async () => {
 
   assert.equal(result.committed, true);
   assert.equal(subject.trim(), "fix generated subject");
+  assert.match(instruction, /Describe the actual behavior changed/);
+  assert.match(instruction, /Avoid generic subjects/);
+  assert.doesNotMatch(instruction, /raw task text should be ignored/);
 });
 
 async function createRepository(project: string, remotes: string, name: string): Promise<string> {
@@ -159,12 +165,13 @@ async function gitOutput(cwd: string, args: string[]): Promise<string> {
   return (await execFileAsync("git", args, { cwd })).stdout;
 }
 
-function fakeCommitMessageProvider(subject: string) {
+function fakeCommitMessageProvider(subject: string, onTask?: (task: { instruction: string; logPath: string }) => void) {
   return {
     name: "fake",
     async start() {},
     async stop() {},
-    async executeTask(task: { logPath: string }) {
+    async executeTask(task: { instruction: string; logPath: string }) {
+      onTask?.(task);
       await appendFile(task.logPath, `HERDR_COMMIT_JSON {"subject":"${subject}"}\n`);
       return { success: true, exitCode: 0, summary: "ok" };
     },

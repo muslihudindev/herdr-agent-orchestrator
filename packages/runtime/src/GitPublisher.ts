@@ -284,8 +284,11 @@ async function aiCommitSubject(projectRoot: string, options: GitPublishOptions):
     role: "validator",
     workerId: "commit-message",
     instruction: [
-      "Generate one concise git commit subject from the staged code changes.",
+      "Generate one informative git commit subject from the staged code changes.",
       "Do not use the user task text. Use only the changed files and diff summary.",
+      "Describe the actual behavior changed, not just files touched.",
+      "Prefer specific domain nouns, functions, routes, components, or tests visible in the diff.",
+      "Avoid generic subjects like update project files, update vendor detail, add tests, or fix bug.",
       "Return only HERDR_COMMIT_JSON followed by one JSON object like {\"subject\":\"fix vendor verification button\"}.",
       "Subject rules: lowercase imperative, no period, max 72 characters.",
       "",

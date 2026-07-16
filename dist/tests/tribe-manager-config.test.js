@@ -46,8 +46,19 @@ const TaskManagerWorker_1 = require("../packages/task-manager/src/TaskManagerWor
     strict_1.default.equal(config?.objectiveId, 42);
     strict_1.default.equal(config?.userId, 7);
 });
-(0, node_test_1.default)("loads current tribe manager project config", async () => {
-    const config = await new TribeManagerConfigLoader_1.TribeManagerConfigLoader("config/tribe-manager.yaml").configForProject("/home/muslih/Documents/MPM_PORTAL");
+(0, node_test_1.default)("loads project config with ids", async () => {
+    const root = (0, node_path_1.join)("/tmp", `tribe-manager-current-${Date.now()}`);
+    const configPath = (0, node_path_1.join)(root, "tribe-manager.yaml");
+    await (0, promises_1.mkdir)(root, { recursive: true });
+    await (0, promises_1.writeFile)(configPath, [
+        "projects:",
+        "  /home/muslih/Documents/MPM_PORTAL:",
+        "    objective: Support bugs post-deployment",
+        "    objective_id: 23",
+        "    user_id: 16",
+        ""
+    ].join("\n"), "utf8");
+    const config = await new TribeManagerConfigLoader_1.TribeManagerConfigLoader(configPath).configForProject("/home/muslih/Documents/MPM_PORTAL");
     strict_1.default.equal(config?.objective, "Support bugs post-deployment");
     strict_1.default.equal(config?.objectiveId, 23);
     strict_1.default.equal(config?.userId, 16);

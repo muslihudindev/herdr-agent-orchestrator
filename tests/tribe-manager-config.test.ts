@@ -56,8 +56,24 @@ test("loads tribe manager config with deeper yaml indentation", async () => {
   assert.equal(config?.userId, 7);
 });
 
-test("loads current tribe manager project config", async () => {
-  const config = await new TribeManagerConfigLoader("config/tribe-manager.yaml").configForProject("/home/muslih/Documents/MPM_PORTAL");
+test("loads project config with ids", async () => {
+  const root = join("/tmp", `tribe-manager-current-${Date.now()}`);
+  const configPath = join(root, "tribe-manager.yaml");
+  await mkdir(root, { recursive: true });
+  await writeFile(
+    configPath,
+    [
+      "projects:",
+      "  /home/muslih/Documents/MPM_PORTAL:",
+      "    objective: Support bugs post-deployment",
+      "    objective_id: 23",
+      "    user_id: 16",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
+
+  const config = await new TribeManagerConfigLoader(configPath).configForProject("/home/muslih/Documents/MPM_PORTAL");
 
   assert.equal(config?.objective, "Support bugs post-deployment");
   assert.equal(config?.objectiveId, 23);
