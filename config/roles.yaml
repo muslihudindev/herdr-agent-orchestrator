@@ -1,0 +1,10 @@
+roles:
+  task_manager:
+    provider: codex-planner
+    replicas: 1
+  executor:
+    provider: claude-code
+    replicas: 3
+  validator:
+    provider: claude-code
+    replicas: 1

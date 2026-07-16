@@ -1,0 +1,98 @@
+{
+  "taskId": "task-333d8544",
+  "success": true,
+  "plan": {
+    "request": "Build JWT authentication with refresh token support.",
+    "detectedTechnology": [
+      "Node.js"
+    ],
+    "subtasks": [
+      {
+        "title": "Authentication middleware",
+        "description": "Implement request authentication and authorization boundaries.",
+        "roleHint": "backend",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-01"
+      },
+      {
+        "title": "JWT service",
+        "description": "Implement token creation, verification, and expiry behavior.",
+        "roleHint": "backend",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-02"
+      },
+      {
+        "title": "Refresh token support",
+        "description": "Implement refresh-token lifecycle, storage hooks, and invalidation paths.",
+        "roleHint": "backend",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-03"
+      },
+      {
+        "title": "Frontend integration",
+        "description": "Update user-facing screens and client-side flows.",
+        "roleHint": "frontend",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-04"
+      },
+      {
+        "title": "Test implementation",
+        "description": "Add or update unit, integration, or e2e tests for the changed behavior. Do not run final validation; Validator owns final verification.",
+        "roleHint": "tests",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-05"
+      }
+    ],
+    "executorCount": 3,
+    "acceptanceCriteria": [
+      "Assigned subtasks completed",
+      "Executor assigned to tests added or updated relevant tests",
+      "Validator ran final tests, lint, build, or available verification commands",
+      "Human approval is requested before finishing"
+    ]
+  },
+  "workers": [
+    {
+      "id": "task-manager",
+      "role": "task_manager",
+      "status": "completed",
+      "currentTask": "You are the Task Manager.",
+      "progress": 100
+    },
+    {
+      "id": "executor-001",
+      "role": "executor",
+      "status": "completed",
+      "currentTask": "You are an Executor. Implement only the assigned work.",
+      "progress": 100
+    },
+    {
+      "id": "executor-002",
+      "role": "executor",
+      "status": "completed",
+      "currentTask": "You are an Executor. Implement only the assigned work.",
+      "progress": 100
+    },
+    {
+      "id": "executor-003",
+      "role": "executor",
+      "status": "completed",
+      "currentTask": "You are an Executor. Implement only the assigned work.",
+      "progress": 100
+    },
+    {
+      "id": "validator",
+      "role": "validator",
+      "status": "completed",
+      "currentTask": "You are the Validator. Review completed work, run available checks, and verify acceptance criteria.",
+      "progress": 100
+    }
+  ],
+  "validationSummary": "validator completed by simulated",
+  "approvalRequired": true
+}

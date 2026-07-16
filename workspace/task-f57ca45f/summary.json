@@ -1,0 +1,60 @@
+{
+  "taskId": "task-f57ca45f",
+  "success": true,
+  "plan": {
+    "request": "on project /home/muslih/Documents/ailiverse/sensemaker/Sensemaker-Webapp-2 fix the e2e test error",
+    "detectedTechnology": [
+      "Node.js"
+    ],
+    "subtasks": [
+      {
+        "title": "Core implementation",
+        "description": "Implement the requested behavior in the relevant modules.",
+        "roleHint": "core",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-01"
+      },
+      {
+        "title": "Tests",
+        "description": "Add or update unit and integration tests for the changed behavior.",
+        "roleHint": "tests",
+        "dependsOn": [],
+        "filesHint": [],
+        "id": "task-02"
+      }
+    ],
+    "executorCount": 1,
+    "acceptanceCriteria": [
+      "Assigned subtasks completed",
+      "Provider execution finished successfully",
+      "Validation worker completed checks",
+      "Human approval is requested before finishing"
+    ]
+  },
+  "workers": [
+    {
+      "id": "task-manager",
+      "role": "task_manager",
+      "status": "completed",
+      "currentTask": "Plan this software task without implementing it:",
+      "progress": 100
+    },
+    {
+      "id": "executor-001",
+      "role": "executor",
+      "status": "completed",
+      "currentTask": "You are an Executor. Implement only the assigned work.",
+      "progress": 100
+    },
+    {
+      "id": "validator",
+      "role": "validator",
+      "status": "completed",
+      "currentTask": "You are the Validator. Review completed work, run available checks, and verify acceptance criteria.",
+      "progress": 100
+    }
+  ],
+  "validationSummary": "validator completed by simulated",
+  "approvalRequired": true
+}

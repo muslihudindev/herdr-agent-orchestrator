@@ -1,0 +1,47 @@
+providers:
+  simulated:
+    command: node
+    args: []
+  codex:
+    command: codex
+    args:
+      - exec
+      - --sandbox
+      - workspace-write
+      - --color
+      - always
+      - --skip-git-repo-check
+    keepPaneOpen: false
+    timeoutMs: 1800000
+  codex-planner:
+    command: codex
+    args:
+      - exec
+      - --sandbox
+      - read-only
+      - --color
+      - always
+      - --skip-git-repo-check
+    keepPaneOpen: false
+    timeoutMs: 600000
+  claude-code:
+    command: claude
+    args:
+      - --permission-mode
+      - auto
+    interactive: true
+    keepPaneOpen: false
+    closePaneOnDone: true
+    timeoutMs: 1800000
+  gemini-cli:
+    command: gemini
+    args: []
+  aider:
+    command: aider
+    args: []
+  opencode:
+    command: opencode
+    args: []
+  ollama:
+    command: ollama
+    args: []

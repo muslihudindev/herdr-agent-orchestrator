@@ -1,0 +1,1 @@
+Build JWT auth autodiscovery smoke test

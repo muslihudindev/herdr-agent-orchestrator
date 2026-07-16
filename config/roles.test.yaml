@@ -1,0 +1,10 @@
+roles:
+  task_manager:
+    provider: simulated
+    replicas: 1
+  executor:
+    provider: simulated
+    replicas: 3
+  validator:
+    provider: simulated
+    replicas: 1

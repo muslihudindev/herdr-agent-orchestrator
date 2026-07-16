@@ -1,0 +1,1624 @@
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+ls
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+HerdR smoke test
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+HerdR log pane smoke test
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+on project /home/muslih/Documents/ailiverse/sensemaker/Sensemaker-Webapp-2 fix the e2e test error
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT auth smoke test
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT auth smoke test
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT auth autodiscovery smoke test
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+on project /home/muslih/Documents/ailiverse/sensemaker/Sensemaker-Webapp-2 fix the e2e test error
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+Error: stdout is not a terminal
+task-manager completed by codex with exit code 1
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+Plan this software task without implementing it:
+Queue smoke task
+[simulated] completed task-manager
+task-manager completed by simulated
+
+[codex] exited with 0
+task-manager completed by codex with exit code 0
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Plan and delegate only.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Create executor assignments, including a dedicated test-writing assignment when tests are needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Plan and delegate only.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Create executor assignments, including a dedicated test-writing assignment when tests are needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Plan and delegate only.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Create executor assignments, including a dedicated test-writing assignment when tests are needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Plan and delegate only.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Create executor assignments, including a dedicated test-writing assignment when tests are needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+
+[codex] exited with 0
+task-manager completed by codex with exit code 0
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Plan and delegate only.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Create executor assignments, including a dedicated test-writing assignment when tests are needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+
+[codex] exited with 0
+task-manager completed by codex with exit code 0
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+
+[codex-planner] exited with 2
+task-manager completed by codex-planner with exit code 2
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your only job is to produce a planning report for HerdR.
+
+Hard boundaries:
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return only a concise planning report with these sections:
+1. Repository understanding
+2. Suggested work lanes
+3. File ownership risks
+4. Test-writing lane needed
+5. Validation notes for the Validator
+
+The separate HerdR Task Manager runtime will convert this into executor assignments.
+If tests are needed, mention a test-writing lane; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Read enough repository context to decide whether the user request is actionable.
+Ask clarification only when missing information would materially change the implementation plan.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code, edit files, run tests, or spawn agents.
+
+End with the literal marker HERDR_CLARIFICATION_JSON followed by one JSON object.
+Use {"questions": []} when no clarification is needed.
+Use {"questions": ["question"]} when clarification is needed.
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated
+worker task-manager started
+[simulated] starting task-manager
+You are the Task Manager.
+Your job is to read the repository and produce the best execution plan for HerdR executors.
+
+Hard boundaries:
+You may inspect and read repository files.
+Do not implement code.
+Do not edit files.
+Do not run tests, lint, build, or validation commands.
+Do not spawn agents, subagents, background agents, workers, or executors.
+Do not call any internal multi-agent, delegation, plan-update, or task-spawning tool.
+Do not say that you are launching, spawning, assigning, or delegating to executors.
+HerdR is the only system allowed to create executors.
+
+Return a concise planning report, then end with the literal marker HERDR_PLAN_JSON followed by one JSON object.
+The JSON object must contain detectedTechnology, executorCount, subtasks, and acceptanceCriteria.
+Each subtask must contain title, description, roleHint, dependsOn, and filesHint.
+
+Choose the best concrete tasks for executors after reading the code.
+Use filesHint to prevent overlapping edits where possible.
+If tests are needed, create a dedicated test-writing subtask; do not run tests yourself.
+
+
+
+User request:
+Build JWT authentication with refresh token support.
+[simulated] completed task-manager
+task-manager completed by simulated

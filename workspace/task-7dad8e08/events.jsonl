@@ -1,0 +1,2 @@
+{"id":"evt-b5a090d7","type":"WorkerStarted","timestamp":"2026-07-13T14:38:49.828Z","workerId":"task-manager","payload":{"id":"task-manager","role":"task_manager","status":"running","currentTask":"You are the Task Manager.","progress":10}}
+{"id":"evt-e59fb3d8","type":"ProgressUpdated","timestamp":"2026-07-13T14:38:49.828Z","workerId":"task-manager","payload":{"id":"task-manager","role":"task_manager","status":"running","currentTask":"You are the Task Manager.","progress":10}}
