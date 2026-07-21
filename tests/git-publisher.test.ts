@@ -109,7 +109,7 @@ test("generates commit message scope from changed code paths", async () => {
   const subject = await gitOutput(repo, ["log", "-1", "--format=%s"]);
 
   assert.equal(result.committed, true);
-  assert.equal(subject.trim(), "add vendor detail");
+  assert.equal(subject.trim(), "add vendor detail implementation and tests");
 });
 
 test("uses provider-generated commit subject when available", async () => {
@@ -124,7 +124,7 @@ test("uses provider-generated commit subject when available", async () => {
   await writeFile(join(repo, "feature.txt"), "feature\n", "utf8");
 
   let instruction = "";
-  const result = await publishTaskChanges(project, "task-test", "raw task text should be ignored", {
+  const result = await publishTaskChanges(project, "task-test", "fix vendor legal verification button stays disabled", {
     commitMessageProvider: fakeCommitMessageProvider("fix generated subject", (task) => {
       instruction = task.instruction;
     }),
@@ -135,9 +135,12 @@ test("uses provider-generated commit subject when available", async () => {
 
   assert.equal(result.committed, true);
   assert.equal(subject.trim(), "fix generated subject");
-  assert.match(instruction, /Describe the actual behavior changed/);
+  assert.match(instruction, /Task intent:\nfix vendor legal verification button stays disabled/);
+  assert.match(instruction, /staged diff is the source of truth/);
+  assert.match(instruction, /Do not copy the task text verbatim/);
+  assert.match(instruction, /Describe the concrete behavior changed and the main domain area/);
+  assert.match(instruction, /Use 8 to 12 useful words/);
   assert.match(instruction, /Avoid generic subjects/);
-  assert.doesNotMatch(instruction, /raw task text should be ignored/);
 });
 
 async function createRepository(project: string, remotes: string, name: string): Promise<string> {

@@ -36,3 +36,26 @@ const ConfigLoader_1 = require("../packages/config/src/ConfigLoader");
     strict_1.default.doesNotMatch(source, /waitForAgentDone\(paneId/);
     strict_1.default.doesNotMatch(source, /logContains/);
 });
+(0, node_test_1.default)("interactive providers close panes on timeout", async () => {
+    const source = await (0, promises_1.readFile)("packages/providers/src/ProcessProvider.ts", "utf8");
+    strict_1.default.match(source, /await this\.closeInteractivePane\(task, pane\.id\);\s+return \{\s+success: false/s);
+    strict_1.default.match(source, /private async closeInteractivePane/);
+    strict_1.default.match(source, /closePaneOnDone/);
+});
+(0, node_test_1.default)("interactive provider startup failures are logged instead of crashing orchestration", async () => {
+    const source = await (0, promises_1.readFile)("packages/providers/src/ProcessProvider.ts", "utf8");
+    strict_1.default.match(source, /private async startInteractiveAgent/);
+    strict_1.default.match(source, /catch \(error\)/);
+    strict_1.default.match(source, /failed to start interactive/);
+    strict_1.default.match(source, /errorMessage\(error\)/);
+    strict_1.default.match(source, /return \{ success: false, exitCode: 1, summary \}/);
+});
+(0, node_test_1.default)("interactive HerdR agent names are unique per spawn", async () => {
+    const source = await (0, promises_1.readFile)("packages/providers/src/ProcessProvider.ts", "utf8");
+    strict_1.default.match(source, /herdrAgentLabel\(task\)/);
+    strict_1.default.match(source, /function herdrAgentLabel\(task: ProviderTask\)/);
+    strict_1.default.match(source, /safeMarkerPart\(task\.workerId\).*safeMarkerPart\(task\.taskId\).*createId\("spawn"\)/s);
+    strict_1.default.match(source, /starting interactive .* agent \$\{agentLabel\}/);
+    strict_1.default.match(source, /failed to start interactive .* agent \$\{agentLabel\}/);
+    strict_1.default.doesNotMatch(source, /startAgent\(task\.workerId/);
+});

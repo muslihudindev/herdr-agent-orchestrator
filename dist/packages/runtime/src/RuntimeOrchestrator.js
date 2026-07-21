@@ -38,7 +38,11 @@ class RuntimeOrchestrator {
         const taskManagerLog = (0, node_path_1.join)(this.storageRoot, "logs", "task-manager.log");
         await ensureLogFile(taskManagerLog);
         const child = await this.spawnTaskManager(taskId, requestPath, eventsPath, summaryPath, clarificationPath, planApprovalPath, gitPublishApprovalPath, taskManagerLog, "execute", preplannedPlan ? preplannedPlanPath : undefined, options.skipPlanApproval);
-        await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+        const completed = await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+        if (!completed) {
+            await (0, promises_1.writeFile)(summaryPath, JSON.stringify(crashedRunSummary(taskId, request, preplannedPlan), null, 2), "utf8");
+            this.eventBus.publish("ApprovalRequired", { taskId, success: false, dashboard: "Orchestration process exited unexpectedly before writing summary." });
+        }
         return JSON.parse(await (0, promises_1.readFile)(summaryPath, "utf8"));
     }
     async planOnly(request, options = {}) {
@@ -62,7 +66,9 @@ class RuntimeOrchestrator {
         const taskManagerLog = (0, node_path_1.join)(this.storageRoot, "logs", `task-manager-${taskId}.log`);
         await ensureLogFile(taskManagerLog);
         const child = await this.spawnTaskManager(taskId, requestPath, eventsPath, summaryPath, clarificationPath, planApprovalPath, gitPublishApprovalPath, taskManagerLog, "plan-only", undefined, false, options.revisionFeedback ? revisionPath : undefined, options.previousPlan ? previousPlanPath : undefined);
-        await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+        const completed = await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+        if (!completed)
+            throw new Error("Task Manager exited unexpectedly before producing a plan");
         return JSON.parse(await (0, promises_1.readFile)(summaryPath, "utf8"));
     }
     async spawnTaskManager(taskId, requestPath, eventsPath, summaryPath, clarificationPath, planApprovalPath, gitPublishApprovalPath, taskManagerLog, mode = "execute", preplannedPlanPath, skipPlanApproval = false, revisionPath, previousPlanPath) {
@@ -129,10 +135,10 @@ class RuntimeOrchestrator {
             offset = await this.replayNewEvents(eventsPath, offset);
             if (await fileExists(summaryPath)) {
                 offset = await this.replayNewEvents(eventsPath, offset);
-                return;
+                return true;
             }
             if (childExitCode !== undefined && childExitCode !== 0) {
-                throw new Error(`Task Manager exited with ${childExitCode ?? 1}`);
+                return false;
             }
             await sleep(100);
         }
@@ -151,6 +157,22 @@ class RuntimeOrchestrator {
     }
 }
 exports.RuntimeOrchestrator = RuntimeOrchestrator;
+function crashedRunSummary(taskId, request, plan) {
+    return {
+        taskId,
+        success: false,
+        plan: plan ?? {
+            request,
+            detectedTechnology: [],
+            subtasks: [],
+            executorCount: 0,
+            acceptanceCriteria: []
+        },
+        workers: [],
+        validationSummary: "Orchestration process exited unexpectedly before writing summary. Check worker logs for the last completed/failed pane.",
+        approvalRequired: false
+    };
+}
 async function ensureLogFile(path) {
     await (0, promises_1.writeFile)(path, "", { flag: "a" });
 }

@@ -46,3 +46,11 @@ test("runtime does not validate when executors fail", async () => {
   assert.match(source, /Executor failed before validation/);
   assert.match(source, /: await this\.validateWithRepair/);
 });
+
+test("orchestrator returns a failed summary when the child process exits unexpectedly", async () => {
+  const source = await import("node:fs/promises").then((fs) => fs.readFile("packages/runtime/src/RuntimeOrchestrator.ts", "utf8"));
+
+  assert.match(source, /crashedRunSummary\(taskId, request, preplannedPlan\)/);
+  assert.match(source, /Orchestration process exited unexpectedly before writing summary/);
+  assert.doesNotMatch(source, /Task Manager exited with \$\{childExitCode/);
+});

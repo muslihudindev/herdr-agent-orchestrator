@@ -36,14 +36,14 @@ async function previewTaskChanges(projectRoot) {
             : "no git repositories found under project folder"
     };
 }
-async function publishTaskChanges(projectRoot, _taskId, _request, options = {}) {
+async function publishTaskChanges(projectRoot, _taskId, request, options = {}) {
     const repositories = await discoverGitRepositories(projectRoot);
     if (!repositories.length) {
         return skipped("no git repositories found under project folder");
     }
     const results = [];
     for (const repository of repositories) {
-        results.push(await publishRepositoryChanges(repository, options));
+        results.push(await publishRepositoryChanges(repository, { ...options, taskIntent: request }));
     }
     const changed = results.filter((result) => result.attempted);
     const committed = results.filter((result) => result.committed);
@@ -93,6 +93,17 @@ async function publishRepositoryChanges(projectRoot, options) {
     }
     const commit = (await gitOutput(projectRoot, ["rev-parse", "--short", "HEAD"])).trim();
     const branch = (await gitOutput(projectRoot, ["branch", "--show-current"])).trim();
+    if (options.push === false) {
+        return {
+            path: projectRoot,
+            attempted: true,
+            committed: true,
+            pushed: false,
+            commit,
+            remotes: [],
+            summary: `committed ${commit}; push skipped by publish mode`
+        };
+    }
     if (!branch) {
         return {
             path: projectRoot,
@@ -221,13 +232,17 @@ async function aiCommitSubject(projectRoot, options) {
         role: "validator",
         workerId: "commit-message",
         instruction: [
-            "Generate one informative git commit subject from the staged code changes.",
-            "Do not use the user task text. Use only the changed files and diff summary.",
-            "Describe the actual behavior changed, not just files touched.",
+            "Generate one descriptive git commit subject from the staged code changes.",
+            "Use the task intent as context, but the staged diff is the source of truth.",
+            "Do not copy the task text verbatim. If intent and diff disagree, describe the diff.",
+            "Describe the concrete behavior changed and the main domain area.",
             "Prefer specific domain nouns, functions, routes, components, or tests visible in the diff.",
+            "Use 8 to 12 useful words when the diff has enough context.",
             "Avoid generic subjects like update project files, update vendor detail, add tests, or fix bug.",
-            "Return only HERDR_COMMIT_JSON followed by one JSON object like {\"subject\":\"fix vendor verification button\"}.",
-            "Subject rules: lowercase imperative, no period, max 72 characters.",
+            "Return only HERDR_COMMIT_JSON followed by one JSON object like {\"subject\":\"fix legal vendor verification button gating\"}.",
+            "Subject rules: lowercase imperative, no period, max 100 characters.",
+            "",
+            `Task intent:\n${commitIntent(options.taskIntent)}`,
             "",
             await stagedDiffSummary(projectRoot)
         ].join("\n"),
@@ -267,7 +282,10 @@ async function readCommitSubject(logPath) {
 }
 function sanitizeCommitSubject(subject) {
     const clean = subject?.replace(/\s+/g, " ").trim().replace(/\.$/, "");
-    return clean ? clean.slice(0, 72) : undefined;
+    return clean ? clean.slice(0, 100) : undefined;
+}
+function commitIntent(request) {
+    return request?.replace(/\s+/g, " ").trim().slice(0, 2000) || "not provided";
 }
 async function generatedCommitSubject(projectRoot) {
     const entries = (await gitOutput(projectRoot, ["diff", "--cached", "--name-status"]))
@@ -279,7 +297,8 @@ async function generatedCommitSubject(projectRoot) {
         : entries.every((entry) => entry.status === "D")
             ? "remove"
             : "update";
-    return `${action} ${commitScope(entries.map((entry) => entry.path))}`;
+    const paths = entries.map((entry) => entry.path);
+    return `${action} ${commitScope(paths)} ${changeKind(paths)}`.trim();
 }
 function parseNameStatus(line) {
     const [status, ...paths] = line.trim().split(/\s+/);
@@ -300,6 +319,29 @@ function pathTokens(path) {
         .split(/[/_.-]+/)
         .map((part) => part.toLowerCase())
         .filter((part) => part.length > 2 && !commitScopeStopWords.has(part));
+}
+function changeKind(paths) {
+    const hasTests = paths.some(isTestPath);
+    const hasConfig = paths.some(isConfigPath);
+    const hasDocs = paths.every((path) => /\.(md|mdx|html|pdf|docx)$/i.test(path));
+    const hasSource = paths.some((path) => !isTestPath(path) && !isConfigPath(path) && /\.(ts|tsx|js|jsx|vue|cs|go|rs|py|java|kt|php)$/i.test(path));
+    if (hasDocs)
+        return "documentation";
+    if (hasConfig && !hasSource && !hasTests)
+        return "configuration";
+    if (hasSource && hasTests)
+        return "implementation and tests";
+    if (hasTests)
+        return "tests";
+    if (hasSource)
+        return "implementation";
+    return "";
+}
+function isTestPath(path) {
+    return /(^|\/)(__tests__|tests?|e2e)\//.test(path) || /\.spec\./.test(path) || /\.test\./.test(path);
+}
+function isConfigPath(path) {
+    return /(^|\/)(package\.json|tsconfig|vite\.config|vitest\.config|playwright\.config|\.gitea|\.github|config)\b/.test(path);
 }
 function safePathPart(value) {
     return value.replace(/[^A-Za-z0-9]+/g, "_");

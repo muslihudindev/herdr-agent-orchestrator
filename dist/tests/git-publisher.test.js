@@ -92,7 +92,7 @@ const execFileAsync = (0, node_util_1.promisify)(node_child_process_1.execFile);
     const result = await (0, GitPublisher_1.publishTaskChanges)(project, "task-test", "raw task text should be ignored");
     const subject = await gitOutput(repo, ["log", "-1", "--format=%s"]);
     strict_1.default.equal(result.committed, true);
-    strict_1.default.equal(subject.trim(), "add vendor detail");
+    strict_1.default.equal(subject.trim(), "add vendor detail implementation and tests");
 });
 (0, node_test_1.default)("uses provider-generated commit subject when available", async () => {
     const root = await (0, promises_1.mkdtemp)((0, node_path_1.join)((0, node_os_1.tmpdir)(), "herdr-git-ai-message-"));
@@ -104,7 +104,7 @@ const execFileAsync = (0, node_util_1.promisify)(node_child_process_1.execFile);
     const repo = await createRepository(project, remotes, "repo-a");
     await (0, promises_1.writeFile)((0, node_path_1.join)(repo, "feature.txt"), "feature\n", "utf8");
     let instruction = "";
-    const result = await (0, GitPublisher_1.publishTaskChanges)(project, "task-test", "raw task text should be ignored", {
+    const result = await (0, GitPublisher_1.publishTaskChanges)(project, "task-test", "fix vendor legal verification button stays disabled", {
         commitMessageProvider: fakeCommitMessageProvider("fix generated subject", (task) => {
             instruction = task.instruction;
         }),
@@ -114,9 +114,12 @@ const execFileAsync = (0, node_util_1.promisify)(node_child_process_1.execFile);
     const subject = await gitOutput(repo, ["log", "-1", "--format=%s"]);
     strict_1.default.equal(result.committed, true);
     strict_1.default.equal(subject.trim(), "fix generated subject");
-    strict_1.default.match(instruction, /Describe the actual behavior changed/);
+    strict_1.default.match(instruction, /Task intent:\nfix vendor legal verification button stays disabled/);
+    strict_1.default.match(instruction, /staged diff is the source of truth/);
+    strict_1.default.match(instruction, /Do not copy the task text verbatim/);
+    strict_1.default.match(instruction, /Describe the concrete behavior changed and the main domain area/);
+    strict_1.default.match(instruction, /Use 8 to 12 useful words/);
     strict_1.default.match(instruction, /Avoid generic subjects/);
-    strict_1.default.doesNotMatch(instruction, /raw task text should be ignored/);
 });
 async function createRepository(project, remotes, name) {
     const repo = (0, node_path_1.join)(project, name);

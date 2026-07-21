@@ -6,7 +6,7 @@ import { promisify } from "node:util";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Dashboard } from "../../packages/dashboard/src/Dashboard";
 import { RuntimeOrchestrator } from "../../packages/runtime/src/RuntimeOrchestrator";
-import type { RunSummary, TaskPlan } from "../../packages/shared/src/types";
+import type { FileScope, RegressionMatrixEntry, RunSummary, TaskPhase, TaskPlan, TaskSafetyAnalysis, ValidationRecord, ValidatorResult } from "../../packages/shared/src/types";
 
 const execFileAsync = promisify(execFile);
 const orchestrationRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -22,6 +22,7 @@ interface QueueItem {
 	id: string;
 	task: string;
 	status: QueueStatus;
+	phase?: TaskPhase;
 	createdAt: string;
 	updatedAt: string;
 	startedAt?: string;
@@ -40,6 +41,15 @@ interface QueueItem {
 	planRevisionCount?: number;
 	planningStartedAt?: string;
 	plannedAt?: string;
+	safetyAnalysis?: TaskSafetyAnalysis;
+	regressionMatrix?: RegressionMatrixEntry[];
+	baselineValidation?: ValidationRecord[];
+	finalValidation?: ValidationRecord[];
+	validatorDecision?: ValidatorResult;
+	approvedFileScope?: FileScope[];
+	actualChangedFiles?: string[];
+	publishApproval?: "pending" | "approved" | "rejected" | "not_required";
+	riskApprovalStatus?: "pending" | "approved" | "not_required";
 }
 
 interface State {
@@ -78,8 +88,17 @@ interface PlanApprovalPayload {
 			roleHint?: string;
 			filesHint?: string[];
 		}>;
-		acceptanceCriteria?: string[];
-	};
+			acceptanceCriteria?: string[];
+			currentBehavior?: string[];
+			requestedBehavior?: string[];
+			impactAnalysis?: TaskSafetyAnalysis;
+			regressionMatrix?: RegressionMatrixEntry[];
+			riskLevel?: string;
+			approvalRequired?: boolean;
+			approvalReasons?: string[];
+			baselineTestPlan?: ValidationRecord[];
+			validationPlan?: ValidationRecord[];
+		};
 }
 
 interface ClarificationPayload {
@@ -151,11 +170,7 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 		description: "Approve the current HerdR confirmation prompt",
 		handler: async (_args, ctx) => {
 			if (state.awaitingGitPublishApproval && state.gitPublishApprovalPath) {
-				writePlanApproval(state.gitPublishApprovalPath, true);
-				state.awaitingGitPublishApproval = false;
-				state.gitPublishApprovalPath = undefined;
-				sendCard(pi, "Git publish approved", "Committing and pushing changed repositories.");
-				ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+				ctx.ui.notify("Use /herdr-approve to approve publishing, or /herdr-reject to reject it.", "warning");
 				return;
 			}
 
@@ -163,6 +178,12 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 				const pendingPlan = nextPendingQueuedPlan();
 				if (!pendingPlan) {
 					ctx.ui.notify("No Task Manager plan is waiting for confirmation.", "warning");
+					return;
+				}
+				if (requiresRiskApproval(pendingPlan)) {
+					markRiskApprovalPending(pendingPlan.id);
+					ctx.ui.notify(`High-risk plan ${pendingPlan.id} needs /herdr-approve-risk first.`, "warning");
+					sendCard(pi, "High-risk approval required", renderQueue(readQueue(), renderRiskApproval(pendingPlan)));
 					return;
 				}
 				approveQueuedPlan(pendingPlan.id);
@@ -178,6 +199,13 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 
 			const queuePlanId = state.planApprovalQueueId;
 			if (queuePlanId) {
+				const queuePlan = readQueue().find((item) => item.id === queuePlanId);
+				if (queuePlan && requiresRiskApproval(queuePlan)) {
+					markRiskApprovalPending(queuePlanId);
+					ctx.ui.notify(`High-risk plan ${queuePlanId} needs /herdr-approve-risk first.`, "warning");
+					sendCard(pi, "High-risk approval required", renderQueue(readQueue(), renderRiskApproval(queuePlan)));
+					return;
+				}
 				approveQueuedPlan(queuePlanId);
 			} else {
 				writePlanApproval(state.planApprovalPath, true);
@@ -299,6 +327,59 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 		},
 	});
 
+	pi.registerCommand("herdr-impact", {
+		description: "Show impact analysis for the active or pending HerdR task",
+		handler: async (_args, ctx) => {
+			const item = currentDetailedTask();
+			if (!item) {
+				ctx.ui.notify("No HerdR task has impact analysis available.", "warning");
+				return;
+			}
+			sendCard(pi, "Impact analysis", renderQueue(readQueue(), renderImpact(item)));
+			ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+		},
+	});
+
+	pi.registerCommand("herdr-regression-matrix", {
+		description: "Show regression matrix for the active or pending HerdR task",
+		handler: async (_args, ctx) => {
+			const item = currentDetailedTask();
+			if (!item) {
+				ctx.ui.notify("No HerdR task has a regression matrix available.", "warning");
+				return;
+			}
+			sendCard(pi, "Regression matrix", renderQueue(readQueue(), renderRegressionMatrix(item)));
+			ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+		},
+	});
+
+	pi.registerCommand("herdr-validation", {
+		description: "Show baseline and final validation for the active or latest HerdR task",
+		handler: async (_args, ctx) => {
+			const item = currentDetailedTask();
+			if (!item) {
+				ctx.ui.notify("No HerdR task has validation details available.", "warning");
+				return;
+			}
+			sendCard(pi, "Validation", renderQueue(readQueue(), renderValidation(item)));
+			ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+		},
+	});
+
+	pi.registerCommand("herdr-approve-risk", {
+		description: "Approve high-risk aspects listed in the Task Manager plan",
+		handler: async (_args, ctx) => {
+			const item = currentDetailedTask();
+			if (!item || !requiresRiskApproval(item)) {
+				ctx.ui.notify("No high-risk HerdR plan needs approval.", "warning");
+				return;
+			}
+			approveRisk(item.id);
+			sendCard(pi, "High-risk approval recorded", renderQueue(readQueue(), `Approved high-risk aspects for ${item.id}. Use /herdr-confirm to approve the plan.`));
+			ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+		},
+	});
+
 	pi.registerCommand("herdr-status", {
 		description: "Show current HerdR orchestration queue status",
 		handler: async (_args, ctx) => {
@@ -351,8 +432,16 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 	});
 
 	pi.registerCommand("herdr-approve", {
-		description: "Approve completed HerdR orchestration",
+		description: "Approve validated HerdR orchestration for publishing",
 		handler: async (_args, ctx) => {
+			if (state.awaitingGitPublishApproval && state.gitPublishApprovalPath) {
+				writePlanApproval(state.gitPublishApprovalPath, true);
+				state.awaitingGitPublishApproval = false;
+				state.gitPublishApprovalPath = undefined;
+				sendCard(pi, "Publish approved", "Committing and pushing changed repositories.");
+				ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+				return;
+			}
 			if (!state.awaitingApproval || !state.lastTaskId) {
 				ctx.ui.notify("No orchestration is waiting for approval.", "warning");
 				return;
@@ -364,8 +453,16 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 	});
 
 	pi.registerCommand("herdr-reject", {
-		description: "Reject completed HerdR orchestration",
+		description: "Reject validated HerdR orchestration before publishing",
 		handler: async (args, ctx) => {
+			if (state.awaitingGitPublishApproval && state.gitPublishApprovalPath) {
+				writePlanApproval(state.gitPublishApprovalPath, false, args.trim() || undefined);
+				state.awaitingGitPublishApproval = false;
+				state.gitPublishApprovalPath = undefined;
+				sendCard(pi, "Publish rejected", args.trim() || "Commit and push rejected by user.");
+				ctx.ui.setStatus("herdr-orchestration", statusLine(ctx));
+				return;
+			}
 			if (!state.awaitingApproval || !state.lastTaskId) {
 				ctx.ui.notify("No orchestration is waiting for rejection.", "warning");
 				return;
@@ -415,6 +512,7 @@ export default function herdrOrchestrationExtension(pi: ExtensionAPI) {
 			for (const item of queue) {
 				if (item.status === "inprogress") {
 					item.status = "todo";
+					item.phase = "queued";
 					item.updatedAt = new Date().toISOString();
 					delete item.startedAt;
 					delete item.error;
@@ -680,7 +778,9 @@ async function runOrchestration(pi: ExtensionAPI, ctx: ExtensionContext, queueId
 			"",
 			summary.success ? "Task marked complete in queue." : "Task marked failed in queue.",
 			summary.success
-				? "Finished. Changes were committed and pushed when git publishing was available."
+				? gitPublishFailed(summary.gitPublish)
+					? "Finished. Git publish had errors; check the Git note above."
+					: "Finished. Changes were committed and pushed when git publishing was available."
 				: summary.approvalRequired
 					? "Use /herdr-approve or /herdr-reject for the latest failed task."
 					: "Fix required before completion.",
@@ -693,6 +793,7 @@ async function runOrchestration(pi: ExtensionAPI, ctx: ExtensionContext, queueId
 			gitPublish: summary.gitPublish,
 			tribeManagerSync: summary.tribeManagerSync,
 		});
+		saveRunSafety(queueId, summary);
 		const followUp = enqueueValidationFixTask(item, summary.success, summary.validationSummary);
 		sendCard(pi, summary.success ? "Task completed" : "Task failed", renderQueue(readQueue(), state.lastSummary));
 		if (followUp) {
@@ -767,6 +868,7 @@ function enqueueTask(task: string): QueueItem {
 		id: `queue-${Date.now().toString(36)}`,
 		task,
 		status: "todo",
+		phase: "queued",
 		createdAt: now,
 		updatedAt: now,
 	};
@@ -801,6 +903,7 @@ function retryFailedTask(id: string): QueueItem | undefined {
 		id: `queue-${Date.now().toString(36)}`,
 		task: `Rework failed task ${id}: ${failed.task}`,
 		status: "todo",
+		phase: "queued",
 		createdAt: now,
 		updatedAt: now,
 		error: failed.result?.summary ? `Previous failure: ${failed.result.summary}` : failed.error,
@@ -831,6 +934,7 @@ function markTask(id: string, status: QueueStatus): QueueItem | undefined {
 	const item = queue.find((entry) => entry.id === id);
 	if (!item) return undefined;
 	item.status = status;
+	item.phase = phaseForStatus(status, item);
 	item.updatedAt = now;
 	if (status === "inprogress") item.startedAt = now;
 	writeQueue(queue);
@@ -842,6 +946,7 @@ function markPlanningStarted(id: string): void {
 	const item = queue.find((entry) => entry.id === id);
 	if (!item) return;
 	item.planningStartedAt = new Date().toISOString();
+	item.phase = "investigating";
 	delete item.error;
 	writeQueue(queue);
 }
@@ -853,6 +958,11 @@ function savePreplannedTask(id: string, planTaskId: string, plan: TaskPlan, revi
 	item.planTaskId = planTaskId;
 	item.plan = plan;
 	item.planApprovalStatus = "pending";
+	item.phase = "awaiting_plan_approval";
+	item.safetyAnalysis = plan.impactAnalysis;
+	item.regressionMatrix = plan.regressionMatrix;
+	item.approvedFileScope = plan.fileOwnership;
+	item.riskApprovalStatus = isHighRiskPlan(plan) ? "pending" : "not_required";
 	item.planRevisionCount = revisionCount;
 	item.plannedAt = new Date().toISOString();
 	item.updatedAt = item.plannedAt;
@@ -864,6 +974,7 @@ function approveQueuedPlan(id: string): void {
 	const item = queue.find((entry) => entry.id === id);
 	if (!item) return;
 	item.planApprovalStatus = "approved";
+	if (item.riskApprovalStatus === "pending" && !requiresRiskApproval(item)) item.riskApprovalStatus = "approved";
 	item.updatedAt = new Date().toISOString();
 	writeQueue(queue);
 }
@@ -873,6 +984,7 @@ function rejectQueuedPlan(id: string, reason: string): void {
 	const item = queue.find((entry) => entry.id === id);
 	if (!item) return;
 	item.status = "failed";
+	item.phase = "cancelled";
 	item.planApprovalStatus = "rejected";
 	item.error = reason;
 	item.updatedAt = new Date().toISOString();
@@ -884,6 +996,7 @@ function markPlanningFailed(id: string, error: string): void {
 	const item = queue.find((entry) => entry.id === id);
 	if (!item) return;
 	item.error = error;
+	item.phase = "failed";
 	item.updatedAt = new Date().toISOString();
 	writeQueue(queue);
 }
@@ -894,6 +1007,7 @@ function finishTask(id: string, status: "complete" | "failed", result: QueueItem
 	const item = queue.find((entry) => entry.id === id);
 	if (!item) return;
 	item.status = status;
+	item.phase = status === "complete" ? "completed" : "failed";
 	item.updatedAt = now;
 	if (status === "complete") item.completedAt = now;
 	item.result = result;
@@ -901,11 +1015,52 @@ function finishTask(id: string, status: "complete" | "failed", result: QueueItem
 	writeQueue(queue);
 }
 
+function saveRunSafety(id: string, summary: RunSummary): void {
+	const queue = readQueue();
+	const item = queue.find((entry) => entry.id === id);
+	if (!item) return;
+	item.phase = summary.phase ?? item.phase;
+	item.safetyAnalysis = summary.safetyAnalysis ?? item.safetyAnalysis;
+	item.regressionMatrix = summary.regressionMatrix ?? item.regressionMatrix;
+	item.baselineValidation = summary.baselineValidation ?? item.baselineValidation;
+	item.finalValidation = summary.finalValidation ?? item.finalValidation;
+	item.validatorDecision = summary.validatorDecision ?? item.validatorDecision;
+	item.approvedFileScope = summary.approvedFileScope ?? item.approvedFileScope;
+	item.actualChangedFiles = summary.actualChangedFiles ?? item.actualChangedFiles;
+	item.publishApproval = summary.publishApproval ?? item.publishApproval;
+	writeQueue(queue);
+}
+
+function migrateQueueItem(item: QueueItem): QueueItem {
+	const phase = item.phase ?? phaseForStatus(item.status, item);
+	const plan = item.plan;
+	return {
+		...item,
+		phase,
+		safetyAnalysis: item.safetyAnalysis ?? plan?.impactAnalysis,
+		regressionMatrix: item.regressionMatrix ?? plan?.regressionMatrix,
+		approvedFileScope: item.approvedFileScope ?? plan?.fileOwnership,
+		riskApprovalStatus: item.riskApprovalStatus ?? (plan && isHighRiskPlan(plan) ? "pending" : "not_required"),
+	};
+}
+
+function phaseForStatus(status: QueueStatus, item: QueueItem): TaskPhase {
+	if (status === "complete") return "completed";
+	if (status === "failed") return item.planApprovalStatus === "rejected" ? "cancelled" : "failed";
+	if (status === "inprogress") {
+		if (item.publishApproval === "pending") return "awaiting_publish_approval";
+		return item.plan?.characterizationRequired ? "creating_baseline" : "implementing";
+	}
+	if (item.plan) return "awaiting_plan_approval";
+	if (item.planningStartedAt) return "investigating";
+	return "queued";
+}
+
 function readQueue(): QueueItem[] {
 	ensureQueueFile();
 	try {
 		const parsed = JSON.parse(readFileSync(queuePath, "utf8")) as { tasks?: QueueItem[] };
-		return Array.isArray(parsed.tasks) ? parsed.tasks : [];
+		return Array.isArray(parsed.tasks) ? parsed.tasks.map(migrateQueueItem) : [];
 	} catch {
 		return [];
 	}
@@ -938,8 +1093,13 @@ function renderQueue(tasks: QueueItem[], prefix?: string): string {
 		...tasks.slice(-12).map((item) => {
 			const result = item.result ? ` -> ${item.result.success ? "passed" : "failed"}` : "";
 			const plan = item.plan ? ` plan:${item.planApprovalStatus ?? "ready"}` : item.planningStartedAt ? " plan:planning" : "";
+			const phase = item.phase ? ` phase:${item.phase}` : "";
+			const risk = item.plan?.riskLevel ? ` risk:${item.plan.riskLevel}` : "";
+			const baseline = item.baselineValidation?.length ? ` baseline:${validationStatus(item.baselineValidation)}` : "";
+			const validation = item.finalValidation?.length ? ` validation:${validationStatus(item.finalValidation)}` : item.validatorDecision ? ` validator:${item.validatorDecision.decision}` : "";
+			const publish = item.publishApproval ? ` publish:${item.publishApproval}` : "";
 			const tribe = item.result?.tribeManagerSync ? ` tribe:${item.result.tribeManagerSync.taskId ?? "sync-status"}` : "";
-			return `[${item.status}] ${item.id}${plan}${tribe} ${ellipsis(item.task, 120)}${result}`;
+			return `[${item.status}] ${item.id}${phase}${risk}${plan}${baseline}${validation}${publish}${tribe} ${ellipsis(item.task, 120)}${result}`;
 		}),
 	].filter((line): line is string => line !== undefined);
 
@@ -1019,8 +1179,75 @@ function renderPlanDetail(payload: PlanApprovalPayload): string {
 		"Acceptance criteria:",
 		...(criteria.length ? criteria.map((item) => `- ${item}`) : ["- Validator will run available checks."]),
 		"",
+		payload.plan ? renderImpact({ id: payload.taskId ?? "plan", task: payload.submittedTask ?? payload.plan.request ?? "", status: "todo", createdAt: "", updatedAt: "", plan: payload.plan }) : "",
+		"",
+		payload.plan ? renderRegressionMatrix({ id: payload.taskId ?? "plan", task: payload.submittedTask ?? payload.plan.request ?? "", status: "todo", createdAt: "", updatedAt: "", plan: payload.plan }) : "",
+		"",
 		"Use /herdr-confirm, /herdr-revise-plan <feedback>, or /herdr-reject-plan [reason].",
 	].filter(Boolean).join("\n");
+}
+
+function renderRiskApproval(item: QueueItem): string {
+	return [
+		`Task: ${item.id}`,
+		`Risk: ${item.plan?.riskLevel ?? "unknown"}`,
+		"",
+		"Approval reasons:",
+		...(item.plan?.approvalReasons?.length ? item.plan.approvalReasons.map((reason) => `- ${reason}`) : ["- High-risk plan requires explicit approval."]),
+		"",
+		"Use /herdr-approve-risk to approve these high-risk aspects, then /herdr-confirm to approve the plan."
+	].join("\n");
+}
+
+function renderImpact(item: QueueItem): string {
+	const impact = item.safetyAnalysis ?? item.plan?.impactAnalysis;
+	if (!impact) return "No impact analysis is available.";
+	return [
+		`Task: ${item.id}`,
+		`Risk: ${impact.riskLevel}`,
+		"",
+		"Current behavior:",
+		...listLines(impact.currentBehavior),
+		"",
+		"Requested behavior:",
+		...listLines(impact.requestedBehavior),
+		"",
+		"Regression risks:",
+		...(impact.regressionRisks.length ? impact.regressionRisks.map((risk) => `- ${risk.area}: ${risk.scenario} (${risk.riskLevel})`) : ["- None listed."]),
+		"",
+		"Approval reasons:",
+		...listLines(impact.approvalReasons)
+	].join("\n");
+}
+
+function renderRegressionMatrix(item: QueueItem): string {
+	const matrix = item.regressionMatrix ?? item.plan?.regressionMatrix ?? [];
+	if (!matrix.length) return "No regression matrix is available.";
+	return [
+		`Task: ${item.id}`,
+		"",
+		...matrix.map((entry) => [
+			`- ${entry.id}: ${entry.area}`,
+			`  Scenario: ${entry.scenario}`,
+			`  Existing: ${entry.existingBehavior}`,
+			`  Expected: ${entry.expectedBehaviorAfterChange}`,
+			`  Risk/test/status: ${entry.riskLevel}/${entry.requiredTestType}/${entry.validationStatus}${entry.coveredByTest ? ` (${entry.coveredByTest})` : ""}`
+		].join("\n"))
+	].join("\n");
+}
+
+function renderValidation(item: QueueItem): string {
+	return [
+		`Task: ${item.id}`,
+		`Phase: ${item.phase ?? "unknown"}`,
+		item.validatorDecision ? `Validator: ${item.validatorDecision.decision} (${item.validatorDecision.validationStatus})` : "Validator: not available",
+		"",
+		"Baseline:",
+		...validationLines(item.baselineValidation),
+		"",
+		"Final:",
+		...validationLines(item.finalValidation)
+	].join("\n");
 }
 
 function renderGitPublishApproval(payload: GitPublishApprovalPayload): string {
@@ -1039,9 +1266,13 @@ function renderGitPublishApproval(payload: GitPublishApprovalPayload): string {
 			: ["- No changed repositories listed."]),
 		hiddenRepositories > 0 ? `- ...and ${hiddenRepositories} more` : "",
 		"",
-		"Use /herdr-confirm to commit and push.",
-		"Use /herdr-reject-git [reason] to skip commit and push.",
+		"Use /herdr-approve to commit and push.",
+		"Use /herdr-reject [reason] to skip commit and push.",
 	].filter(Boolean).join("\n");
+}
+
+function gitPublishFailed(gitPublish: RunSummary["gitPublish"] | undefined): boolean {
+	return Boolean(gitPublish?.attempted && (!gitPublish.committed || !gitPublish.pushed));
 }
 
 function compactTaskText(text: string): string {
@@ -1075,16 +1306,70 @@ function countByStatus(tasks: QueueItem[]): Record<QueueStatus, number> {
 	};
 }
 
+function currentDetailedTask(): QueueItem | undefined {
+	const queue = readQueue();
+	return queue.find((item) => item.id === state.planApprovalQueueId)
+		?? queue.find((item) => item.status === "inprogress")
+		?? queue.find((item) => item.status === "todo" && item.plan)
+		?? queue.at(-1);
+}
+
+function isHighRiskPlan(plan: TaskPlan): boolean {
+	return plan.riskLevel === "high" || plan.riskLevel === "critical" || Boolean(plan.approvalRequired && plan.approvalReasons?.length);
+}
+
+function requiresRiskApproval(item: QueueItem): boolean {
+	return Boolean(item.plan && isHighRiskPlan(item.plan) && item.riskApprovalStatus !== "approved");
+}
+
+function markRiskApprovalPending(id: string): void {
+	const queue = readQueue();
+	const item = queue.find((entry) => entry.id === id);
+	if (!item) return;
+	item.riskApprovalStatus = "pending";
+	item.updatedAt = new Date().toISOString();
+	writeQueue(queue);
+}
+
+function approveRisk(id: string): void {
+	const queue = readQueue();
+	const item = queue.find((entry) => entry.id === id);
+	if (!item) return;
+	item.riskApprovalStatus = "approved";
+	item.updatedAt = new Date().toISOString();
+	writeQueue(queue);
+}
+
+function validationStatus(records: ValidationRecord[]): string {
+	if (records.some((record) => record.status === "failed" || record.status === "blocked")) return "failed";
+	if (records.some((record) => record.status === "running")) return "running";
+	if (records.some((record) => record.required && record.status === "skipped")) return "partial";
+	if (records.length && records.every((record) => record.status === "passed" || record.status === "skipped")) return "passed";
+	return "pending";
+}
+
+function validationLines(records: ValidationRecord[] | undefined): string[] {
+	if (!records?.length) return ["- Not available."];
+	return records.map((record) => `- ${record.category}: ${record.command} -> ${record.status}${record.outputSummary ? ` (${record.outputSummary})` : ""}${record.skipReason ? ` skip:${record.skipReason}` : ""}`);
+}
+
+function listLines(items: string[] | undefined): string[] {
+	return items?.length ? items.map((item) => `- ${item}`) : ["- Not listed."];
+}
+
 function statusLine(ctx: ExtensionContext): string {
 	const queue = readQueue();
 	const counts = countByStatus(queue);
 	const manager = state.taskManagerStatus ? ` tm:${state.taskManagerStatus}` : "";
 	const clarification = state.awaitingClarification ? " clarify:waiting" : "";
 	const plan = state.awaitingPlanApproval || queue.some((item) => item.status === "todo" && item.plan && item.planApprovalStatus === "pending") ? " plan:waiting" : "";
+	const risk = queue.some((item) => item.status === "todo" && requiresRiskApproval(item)) ? " risk:waiting" : "";
 	const git = state.awaitingGitPublishApproval ? " git:waiting" : "";
-	const text = `HerdR todo:${counts.todo} inprogress:${counts.inprogress} complete:${counts.complete} failed:${counts.failed}${clarification}${plan}${git}${manager}`;
+	const phase = queue.find((item) => item.status === "inprogress")?.phase;
+	const text = `HerdR todo:${counts.todo} inprogress:${counts.inprogress} complete:${counts.complete} failed:${counts.failed}${phase ? ` phase:${phase}` : ""}${clarification}${plan}${risk}${git}${manager}`;
 	if (state.awaitingClarification) return ctx.ui.theme.fg("warning", text);
 	if (state.awaitingPlanApproval) return ctx.ui.theme.fg("warning", text);
+	if (risk) return ctx.ui.theme.fg("warning", text);
 	if (state.awaitingGitPublishApproval) return ctx.ui.theme.fg("warning", text);
 	if (counts.inprogress > 0) return ctx.ui.theme.fg("accent", text);
 	if (counts.todo > 0) return ctx.ui.theme.fg("warning", text);

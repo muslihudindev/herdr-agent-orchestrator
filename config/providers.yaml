@@ -45,3 +45,34 @@ providers:
   ollama:
     command: ollama
     args: []
+
+safety:
+  require_impact_analysis: true
+  require_regression_matrix: true
+  require_characterization_tests_for_legacy_changes: true
+  require_independent_validation: true
+  high_risk:
+    require_explicit_approval: true
+    file_change_threshold: 15
+    line_change_threshold: 500
+    change_types:
+      - database_schema
+      - data_migration
+      - public_api
+      - authentication
+      - authorization
+      - payment
+      - event_payload
+      - dependency_upgrade
+      - destructive_operation
+      - breaking_change
+
+validation:
+  block_on_critical_findings: true
+  block_on_high_findings: true
+  fail_on_required_test_failure: true
+  allow_partial_validation: true
+  maximum_repair_attempts: 2
+
+git:
+  publish_mode: manual_approval

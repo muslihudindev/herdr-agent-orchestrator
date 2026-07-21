@@ -42,14 +42,32 @@ test("Pi plan confirmation uses compact submitted task text", async () => {
   assert.match(source, /User clarification/);
 });
 
-test("Runtime auto publishes git changes after validation passes", async () => {
+test("Runtime requires publish approval before git changes in manual mode", async () => {
   const source = await readFile("packages/runtime/src/TaskManagerRuntime.ts", "utf8");
 
   assert.match(source, /publishTaskChanges\(this\.projectRoot, taskId, request, \{/);
   assert.match(source, /commitMessageProvider: this\.providerRegistry\.get\(roles\.providerFor\("validator"\)\)/);
-  assert.match(source, /gitPublish\.committed && gitPublish\.pushed/);
-  assert.doesNotMatch(source, /waitForGitPublishApproval/);
-  assert.doesNotMatch(source, /GitPublishApprovalRequired/);
+  assert.match(source, /const success = workSucceeded/);
+  assert.match(source, /Git note:/);
+  assert.match(source, /waitForGitPublishApproval/);
+  assert.match(source, /GitPublishApprovalRequired/);
+  assert.match(source, /publishMode !== "automatic_after_validation"/);
+});
+
+test("Pi uses approve and reject for publish approval", async () => {
+  const source = await readFile(piExtensionPath, "utf8");
+
+  assert.match(source, /Use \/herdr-approve to approve publishing/);
+  assert.match(source, /Publish approved/);
+  assert.match(source, /Publish rejected/);
+});
+
+test("Pi marks validated tasks complete even when git publish has errors", async () => {
+	const source = await readFile(piExtensionPath, "utf8");
+
+	assert.match(source, /function gitPublishFailed/);
+	assert.match(source, /Git publish had errors/);
+	assert.match(source, /finishTask\(queueId, summary\.success \? "complete" : "failed"/);
 });
 
 test("Pi passes explicit tribe manager config path to runtime", async () => {

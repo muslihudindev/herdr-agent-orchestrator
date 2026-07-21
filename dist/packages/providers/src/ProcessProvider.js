@@ -5,6 +5,7 @@ const node_child_process_1 = require("node:child_process");
 const node_fs_1 = require("node:fs");
 const promises_1 = require("node:fs/promises");
 const node_path_1 = require("node:path");
+const ids_1 = require("../../shared/src/ids");
 const HerdRAdapter_1 = require("../../runtime/src/HerdRAdapter");
 class ProcessProvider {
     config;
@@ -112,27 +113,25 @@ class ProcessProvider {
             ""
         ].join("\n"), "utf8");
         const completionMarker = interactiveCompletionMarker(task);
-        const pane = await this.herdr.startAgent(task.workerId, cwd, [
-            this.config.command,
-            ...this.config.args,
-            interactivePrompt(task, completionMarker)
-        ]);
+        const pane = await this.startInteractiveAgent(task, cwd, completionMarker);
+        if (!pane) {
+            const summary = `${task.workerId} failed to start interactive ${this.name}`;
+            return { success: false, exitCode: 1, summary };
+        }
         await (0, promises_1.appendFile)(task.logPath, `started interactive ${this.name} agent ${pane.id} with initial prompt\n`, "utf8");
         const completed = await waitForInteractiveCompletion(this.herdr, pane.id, interactiveCompletionMarkers(task.instruction, completionMarker), timeoutMs);
         await (0, promises_1.appendFile)(task.logPath, `\n${await this.herdr.readAgent(pane.id)}\n`, "utf8");
         if (!completed) {
             const summary = `${task.workerId} timed out waiting for interactive ${this.name} after ${timeoutMs}ms`;
             await (0, promises_1.appendFile)(task.logPath, `${summary}\n`, "utf8");
+            await this.closeInteractivePane(task, pane.id);
             return {
                 success: false,
                 exitCode: 124,
                 summary
             };
         }
-        if (this.config.closePaneOnDone) {
-            const closed = await this.herdr.closePane(pane.id);
-            await (0, promises_1.appendFile)(task.logPath, `${closed ? "closed" : "failed to close"} interactive ${this.name} agent ${pane.id}\n`, "utf8");
-        }
+        await this.closeInteractivePane(task, pane.id);
         const summary = `${task.workerId} completed by interactive ${this.name}`;
         await (0, promises_1.appendFile)(task.logPath, `${summary}\n`, "utf8");
         return {
@@ -140,6 +139,27 @@ class ProcessProvider {
             exitCode: 0,
             summary
         };
+    }
+    async startInteractiveAgent(task, cwd, completionMarker) {
+        const agentLabel = herdrAgentLabel(task);
+        await (0, promises_1.appendFile)(task.logPath, `${task.workerId} starting interactive ${this.name} agent ${agentLabel}\n`, "utf8");
+        try {
+            return await this.herdr.startAgent(agentLabel, cwd, [
+                this.config.command,
+                ...this.config.args,
+                interactivePrompt(task, completionMarker)
+            ]);
+        }
+        catch (error) {
+            await (0, promises_1.appendFile)(task.logPath, `${task.workerId} failed to start interactive ${this.name} agent ${agentLabel}: ${errorMessage(error)}\n`, "utf8");
+            return undefined;
+        }
+    }
+    async closeInteractivePane(task, paneId) {
+        if (!this.config.closePaneOnDone)
+            return;
+        const closed = await this.herdr.closePane(paneId);
+        await (0, promises_1.appendFile)(task.logPath, `${closed ? "closed" : "failed to close"} interactive ${this.name} agent ${paneId}\n`, "utf8");
     }
     async streamLogs(_taskId, _onChunk) {
         return () => undefined;
@@ -170,6 +190,12 @@ function providerCwd(task) {
 }
 function shellQuote(value) {
     return `'${value.replace(/'/g, "'\\''")}'`;
+}
+function errorMessage(error) {
+    return error instanceof Error ? error.message : String(error);
+}
+function herdrAgentLabel(task) {
+    return `${safeMarkerPart(task.workerId)}-${safeMarkerPart(task.taskId)}-${(0, ids_1.createId)("spawn")}`;
 }
 function interactivePrompt(task, completionMarker) {
     return [

@@ -60,7 +60,11 @@ export class RuntimeOrchestrator {
       preplannedPlan ? preplannedPlanPath : undefined,
       options.skipPlanApproval
     );
-    await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+    const completed = await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+    if (!completed) {
+      await writeFile(summaryPath, JSON.stringify(crashedRunSummary(taskId, request, preplannedPlan), null, 2), "utf8");
+      this.eventBus.publish("ApprovalRequired", { taskId, success: false, dashboard: "Orchestration process exited unexpectedly before writing summary." });
+    }
     return JSON.parse(await readFile(summaryPath, "utf8")) as RunSummary;
   }
 
@@ -99,7 +103,8 @@ export class RuntimeOrchestrator {
       options.revisionFeedback ? revisionPath : undefined,
       options.previousPlan ? previousPlanPath : undefined
     );
-    await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+    const completed = await this.replayEventsUntilSummary(eventsPath, summaryPath, child);
+    if (!completed) throw new Error("Task Manager exited unexpectedly before producing a plan");
     return JSON.parse(await readFile(summaryPath, "utf8")) as { taskId: string; plan: TaskPlan };
   }
 
@@ -176,7 +181,7 @@ export class RuntimeOrchestrator {
     eventsPath: string,
     summaryPath: string,
     child: ChildProcessWithoutNullStreams | undefined
-  ): Promise<void> {
+  ): Promise<boolean> {
     let offset = 0;
     let childExitCode: number | null | undefined;
     child?.on("exit", (code) => {
@@ -187,10 +192,10 @@ export class RuntimeOrchestrator {
       offset = await this.replayNewEvents(eventsPath, offset);
       if (await fileExists(summaryPath)) {
         offset = await this.replayNewEvents(eventsPath, offset);
-        return;
+        return true;
       }
       if (childExitCode !== undefined && childExitCode !== 0) {
-        throw new Error(`Task Manager exited with ${childExitCode ?? 1}`);
+        return false;
       }
       await sleep(100);
     }
@@ -207,6 +212,23 @@ export class RuntimeOrchestrator {
     }
     return text.length;
   }
+}
+
+function crashedRunSummary(taskId: string, request: string, plan?: TaskPlan): RunSummary {
+  return {
+    taskId,
+    success: false,
+    plan: plan ?? {
+      request,
+      detectedTechnology: [],
+      subtasks: [],
+      executorCount: 0,
+      acceptanceCriteria: []
+    },
+    workers: [],
+    validationSummary: "Orchestration process exited unexpectedly before writing summary. Check worker logs for the last completed/failed pane.",
+    approvalRequired: false
+  };
 }
 
 async function ensureLogFile(path: string): Promise<void> {

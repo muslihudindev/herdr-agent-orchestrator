@@ -1,17 +1,21 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import { ConfigLoader } from "../../config/src/ConfigLoader";
 import { TribeManagerConfigLoader } from "../../config/src/TribeManagerConfigLoader";
 import { Dashboard } from "../../dashboard/src/Dashboard";
 import { EventBus } from "../../event-bus/src/EventBus";
 import { ProviderRegistry } from "../../providers/src/ProviderRegistry";
 import { RoleRegistry } from "../../registry/src/RoleRegistry";
-import { RunSummary, Subtask } from "../../shared/src/types";
+import { FileScope, PlatformConfig, RegressionMatrixEntry, RunSummary, Subtask, TaskPlan, ValidationRecord, ValidatorResult } from "../../shared/src/types";
 import { TaskManagerWorker } from "../../task-manager/src/TaskManagerWorker";
 import { ValidatorWorker } from "../../validator/src/ValidatorWorker";
 import { ExecutorWorker } from "../../workers/src/ExecutorWorker";
 import { WorkspaceManager } from "../../workspace/src/WorkspaceManager";
 import { GitPublishResult, previewTaskChanges, publishTaskChanges } from "./GitPublisher";
+
+const execFileAsync = promisify(execFile);
 
 export interface TaskManagerRuntimeOptions {
   orchestrationRoot?: string;
@@ -22,6 +26,13 @@ export interface TaskManagerRuntimeOptions {
   gitPublishApprovalPath?: string;
   preplannedPlanPath?: string;
   skipPlanApproval?: boolean;
+}
+
+interface RuntimeValidationResult {
+  success: boolean;
+  exitCode: number;
+  summary: string;
+  validatorResult?: ValidatorResult;
 }
 
 export class TaskManagerRuntime {
@@ -68,7 +79,10 @@ export class TaskManagerRuntime {
     const roles = new RoleRegistry(config);
     this.providerRegistry.configure(config.providers);
     const logRoot = join(this.storageRoot, "logs");
+    const artifactsRoot = join(this.storageRoot, "tasks", taskId);
     await mkdir(logRoot, { recursive: true });
+    await mkdir(artifactsRoot, { recursive: true });
+    await writeArtifact(artifactsRoot, "request.md", request);
 
     const dashboard = new Dashboard(this.eventBus);
     const stopDashboard = dashboard.start();
@@ -98,7 +112,12 @@ export class TaskManagerRuntime {
         effectiveRequest = `${request}\n\nUser clarification:\n${answer}`;
       }
     }
+    this.eventBus.publish("task.investigation.started", { taskId }, "task-manager");
     plan = plan ?? await taskManager.plan(taskId, effectiveRequest, join(runWorkspace, "task-manager"), tribeManagerConfig);
+    await persistPlanArtifacts(artifactsRoot, plan);
+    this.eventBus.publish("task.investigation.completed", { taskId, summary: plan.summary }, "task-manager");
+    this.eventBus.publish("task.impact.completed", { taskId, riskLevel: plan.riskLevel }, "task-manager");
+    this.eventBus.publish("task.regression_matrix.completed", { taskId, count: plan.regressionMatrix?.length ?? 0 }, "task-manager");
     if (this.planApprovalPath && !this.skipPlanApproval) {
       let revisionCount = 0;
       while (true) {
@@ -115,6 +134,7 @@ export class TaskManagerRuntime {
             approval.revision,
             plan
           );
+          await persistPlanArtifacts(artifactsRoot, plan);
           continue;
         }
         if (!approval.approved) {
@@ -140,11 +160,53 @@ export class TaskManagerRuntime {
     );
     if (tribeInProgressSync.taskId) await writeStoredTribeTaskId(this.storageRoot, taskId, tribeInProgressSync.taskId);
     const tribeTaskId = tribeInProgressSync.taskId ?? await readStoredTribeTaskId(this.storageRoot, taskId);
-    const assignments = assignSubtasks(plan.subtasks, plan.executorCount);
+    const approvedFileScope = scopesForPlan(plan);
+    const baselineValidation = await this.runBaselineIfRequired(taskId, effectiveRequest, plan, logRoot, roles, approvedFileScope, config);
+    await writeArtifact(artifactsRoot, "baseline-validation.json", JSON.stringify(baselineValidation.records, null, 2));
+    if (!baselineValidation.success) {
+      const validationSummary = baselineValidation.summary;
+      const tribeCompletionSync = await tribeSyncWorker.reportCompletion(
+        taskId,
+        effectiveRequest,
+        false,
+        validationSummary,
+        join(runWorkspace, "tribe-manager-complete"),
+        tribeManagerConfig,
+        tribeTaskId
+      );
+      stopDashboard();
+      return {
+        taskId,
+        success: false,
+        phase: "blocked",
+        plan,
+        safetyAnalysis: plan.impactAnalysis,
+        regressionMatrix: plan.regressionMatrix,
+        baselineValidation: baselineValidation.records,
+        approvedFileScope,
+        workers: dashboard.snapshots(),
+        validationSummary,
+        approvalRequired: false,
+        publishApproval: "not_required",
+        tribeManagerSync: {
+          inProgress: tribeInProgressSync.summary,
+          completion: tribeCompletionSync,
+          taskId: tribeTaskId
+        }
+      };
+    }
 
-    const executorResults = await Promise.all(
-      assignments.map(async (subtasks, index) => {
-        const workerId = `executor-${String(index + 1).padStart(3, "0")}`;
+    const baseChangedFiles = await changedFiles(this.projectRoot);
+    const implementationSubtasks = plan.subtasks.filter((task) => task.assignmentType !== "characterization_tests");
+    const assignments = assignSubtasksByScope(implementationSubtasks, plan.executorCount);
+    await writeArtifact(artifactsRoot, "executor-assignments.json", JSON.stringify(assignments, null, 2));
+
+    const executorResults = [];
+    let executorIndex = 0;
+    for (const group of assignments) {
+      executorResults.push(...await Promise.all(group.map(async (subtasks) => {
+        executorIndex += 1;
+        const workerId = `executor-${String(executorIndex).padStart(3, "0")}`;
         const logPath = join(logRoot, `${workerId}.log`);
         const workerPath = await this.workspaceManager.prepareWorker(taskId, workerId);
         await ensureLogFile(logPath);
@@ -155,17 +217,58 @@ export class TaskManagerRuntime {
           logPath
         );
         return worker.run(taskId, effectiveRequest, subtasks, workerPath);
-      })
-    );
+      })));
+    }
+    const actualChangedFiles = subtract(await changedFiles(this.projectRoot), baseChangedFiles);
+    const scopeViolations = unapprovedFiles(actualChangedFiles, approvedFileScope);
+    if (scopeViolations.length) {
+      this.eventBus.publish("executor.scope_violation", { taskId, files: scopeViolations }, "runtime");
+      await writeArtifact(artifactsRoot, "final-report.md", `Scope violation:\n${scopeViolations.map((file) => `- ${file}`).join("\n")}`);
+      const validationSummary = `Executor scope violation:\n${scopeViolations.map((file) => `- ${file}`).join("\n")}`;
+      const tribeCompletionSync = await tribeSyncWorker.reportCompletion(
+        taskId,
+        effectiveRequest,
+        false,
+        validationSummary,
+        join(runWorkspace, "tribe-manager-complete"),
+        tribeManagerConfig,
+        tribeTaskId
+      );
+      stopDashboard();
+      return {
+        taskId,
+        success: false,
+        phase: "blocked",
+        plan,
+        safetyAnalysis: plan.impactAnalysis,
+        regressionMatrix: plan.regressionMatrix,
+        baselineValidation: baselineValidation.records,
+        approvedFileScope,
+        actualChangedFiles,
+        workers: dashboard.snapshots(),
+        validationSummary,
+        approvalRequired: false,
+        publishApproval: "not_required",
+        tribeManagerSync: {
+          inProgress: tribeInProgressSync.summary,
+          completion: tribeCompletionSync,
+          taskId: tribeTaskId
+        }
+      };
+    }
 
     const executorFailureSummary = executorFailure(executorResults);
-    const validation = executorFailureSummary
-      ? { success: false, summary: executorFailureSummary }
-      : await this.validateWithRepair(taskId, effectiveRequest, plan, logRoot, roles);
+    const validation: RuntimeValidationResult = executorFailureSummary
+      ? { success: false, exitCode: 1, summary: executorFailureSummary }
+      : await this.validateWithRepair(taskId, effectiveRequest, plan, logRoot, roles, baselineValidation.records, actualChangedFiles, config);
     const workSucceeded = !executorFailureSummary && validation.success;
-    const gitPublish = workSucceeded ? await this.confirmAndPublishGitChanges(taskId, effectiveRequest, roles, logRoot, runWorkspace) : undefined;
-    const success = workSucceeded && (!gitPublish?.attempted || (gitPublish.committed && gitPublish.pushed));
-    const validationSummary = success || !gitPublish?.attempted ? validation.summary : `${validation.summary}\n${gitPublish.summary}`;
+    await writeArtifact(artifactsRoot, "validator-results.json", JSON.stringify(validation.validatorResult ?? validation, null, 2));
+    const gitPublish = workSucceeded ? await this.confirmAndPublishGitChanges(taskId, effectiveRequest, roles, logRoot, runWorkspace, config) : undefined;
+    const success = workSucceeded;
+    const gitFailed = Boolean(gitPublish?.attempted && (!gitPublish.committed || !gitPublish.pushed));
+    const validationSummary = gitFailed ? `${validation.summary}\nGit note: ${gitPublish?.summary}` : validation.summary;
+    const finalValidation = validation.validatorResult?.commands ?? [];
+    await writeArtifact(artifactsRoot, "final-validation.json", JSON.stringify(finalValidation, null, 2));
     const tribeCompletionSync = await tribeSyncWorker.reportCompletion(
       taskId,
       effectiveRequest,
@@ -181,11 +284,20 @@ export class TaskManagerRuntime {
     return {
       taskId,
       success,
+      phase: success ? "completed" : "failed",
       plan,
+      safetyAnalysis: plan.impactAnalysis,
+      regressionMatrix: validation.validatorResult?.regressionMatrixResults ?? plan.regressionMatrix,
+      baselineValidation: baselineValidation.records,
+      finalValidation,
+      validatorDecision: validation.validatorResult,
+      approvedFileScope,
+      actualChangedFiles,
       workers: dashboard.snapshots(),
       validationSummary,
       approvalRequired: false,
       gitPublish,
+      publishApproval: publishApprovalStatus(gitPublish),
       tribeManagerSync: {
         inProgress: tribeInProgressSync.summary,
         completion: tribeCompletionSync,
@@ -230,11 +342,15 @@ export class TaskManagerRuntime {
     request: string,
     plan: RunSummary["plan"],
     logRoot: string,
-    roles: RoleRegistry
+    roles: RoleRegistry,
+    baselineValidation: ValidationRecord[],
+    actualChangedFiles: string[],
+    config: PlatformConfig
   ) {
-    let validation = await this.runValidator(taskId, plan, logRoot, roles);
+    let validation = await this.runValidator(taskId, request, plan, logRoot, roles, baselineValidation, actualChangedFiles);
 
-    for (let attempt = 1; !validation.success && attempt <= this.maxValidationRepairAttempts; attempt += 1) {
+    const maxAttempts = Number(process.env.PI_ORCHESTRATION_MAX_VALIDATION_REPAIRS ?? config.validation.maximumRepairAttempts);
+    for (let attempt = 1; !validation.success && attempt <= maxAttempts; attempt += 1) {
       const workerId = `executor-repair-${String(attempt).padStart(3, "0")}`;
       const logPath = join(logRoot, `${workerId}.log`);
       const workerPath = await this.workspaceManager.prepareWorker(taskId, workerId);
@@ -249,7 +365,7 @@ export class TaskManagerRuntime {
         taskId,
         request,
         plan,
-        validation.summary,
+        repairSummary(validation),
         workerPath
       );
 
@@ -261,13 +377,21 @@ export class TaskManagerRuntime {
         };
       }
 
-      validation = await this.runValidator(taskId, plan, logRoot, roles);
+      validation = await this.runValidator(taskId, request, plan, logRoot, roles, baselineValidation, actualChangedFiles);
     }
 
     return validation;
   }
 
-  private async runValidator(taskId: string, plan: RunSummary["plan"], logRoot: string, roles: RoleRegistry) {
+  private async runValidator(
+    taskId: string,
+    request: string,
+    plan: RunSummary["plan"],
+    logRoot: string,
+    roles: RoleRegistry,
+    baselineValidation: ValidationRecord[],
+    actualChangedFiles: string[]
+  ): Promise<RuntimeValidationResult> {
     const validatorPath = await this.workspaceManager.prepareWorker(taskId, "validator");
     const validatorLog = join(logRoot, "validator.log");
     await ensureLogFile(validatorLog);
@@ -276,7 +400,16 @@ export class TaskManagerRuntime {
       this.eventBus,
       validatorLog
     );
-    return validator.validate(taskId, plan, validatorPath);
+    this.eventBus.publish("validation.started", { taskId }, "validator");
+    const result = await validator.validate(taskId, request, plan, validatorPath, baselineValidation, actualChangedFiles);
+    this.eventBus.publish("validation.completed", { taskId, result }, "validator");
+    for (const finding of result.validatorResult?.findings ?? []) {
+      this.eventBus.publish("validator.finding.created", { taskId, finding }, "validator");
+    }
+    if (result.validatorResult?.decision === "changes_requested") {
+      this.eventBus.publish("validator.changes_requested", { taskId, result: result.validatorResult }, "validator");
+    }
+    return result;
   }
 
   private async confirmAndPublishGitChanges(
@@ -284,7 +417,8 @@ export class TaskManagerRuntime {
     request: string,
     roles: RoleRegistry,
     logRoot: string,
-    runWorkspace: string
+    runWorkspace: string,
+    config: PlatformConfig
   ): Promise<GitPublishResult> {
     const preview = await previewTaskChanges(this.projectRoot);
     if (preview.changedRepositories === 0) {
@@ -298,11 +432,98 @@ export class TaskManagerRuntime {
       };
     }
 
-    return publishTaskChanges(this.projectRoot, taskId, request, {
+    if (config.git.publishMode === "disabled") {
+      return {
+        attempted: false,
+        committed: false,
+        pushed: false,
+        remotes: [],
+        repositories: [],
+        summary: "git publish skipped: disabled by configuration"
+      };
+    }
+
+    if (config.git.publishMode !== "automatic_after_validation") {
+      if (!this.gitPublishApprovalPath) {
+        return {
+          attempted: false,
+          committed: false,
+          pushed: false,
+          remotes: [],
+          repositories: [],
+          summary: "git publish skipped: approval path unavailable"
+        };
+      }
+      await clearDecisionFile(this.gitPublishApprovalPath);
+      this.eventBus.publish("task.publish_approval.requested", { taskId, preview }, "runtime");
+      this.eventBus.publish("GitPublishApprovalRequired", { taskId, approvalPath: this.gitPublishApprovalPath, preview }, "runtime");
+      const approval = await waitForGitPublishApproval(this.gitPublishApprovalPath);
+      if (!approval.approved) {
+        return {
+          attempted: false,
+          committed: false,
+          pushed: false,
+          remotes: [],
+          repositories: [],
+          summary: approval.reason ? `git publish rejected: ${approval.reason}` : "git publish rejected by user"
+        };
+      }
+      this.eventBus.publish("task.publish_approval.received", { taskId }, "runtime");
+    }
+
+    this.eventBus.publish("git.publish.started", { taskId }, "runtime");
+    const result = await publishTaskChanges(this.projectRoot, taskId, request, {
       commitMessageProvider: this.providerRegistry.get(roles.providerFor("validator")),
       logPath: join(logRoot, "commit-message.log"),
-      workspacePath: join(runWorkspace, "commit-message")
+      workspacePath: join(runWorkspace, "commit-message"),
+      push: config.git.publishMode !== "commit_only_after_approval"
     });
+    this.eventBus.publish(result.committed && result.pushed ? "git.publish.completed" : "git.publish.failed", { taskId, result }, "runtime");
+    return result;
+  }
+
+  private async runBaselineIfRequired(
+    taskId: string,
+    request: string,
+    plan: TaskPlan,
+    logRoot: string,
+    roles: RoleRegistry,
+    approvedFileScope: FileScope[],
+    config: PlatformConfig
+  ): Promise<{ success: boolean; summary: string; records: ValidationRecord[] }> {
+    if (!requiresBaseline(plan, config)) return { success: true, summary: plan.characterizationSkipReason ?? "baseline skipped", records: [] };
+
+    this.eventBus.publish("task.baseline.started", { taskId }, "runtime");
+    const workerId = "executor-characterization-001";
+    const logPath = join(logRoot, `${workerId}.log`);
+    const workerPath = await this.workspaceManager.prepareWorker(taskId, workerId);
+    await ensureLogFile(logPath);
+    const baselineSubtask: Subtask = {
+      id: "characterization-baseline",
+      title: "Characterization tests",
+      description: "Add tests for existing affected behavior before production implementation.",
+      roleHint: "tests",
+      dependsOn: [],
+      filesHint: approvedFileScope.flatMap((scope) => [...scope.allowedFiles, ...scope.allowedDirectories]),
+      assignmentType: "characterization_tests",
+      fileScope: mergeScopes(approvedFileScope)
+    };
+    const before = await changedFiles(this.projectRoot);
+    const worker = new ExecutorWorker(workerId, this.providerRegistry.get(roles.providerFor("executor")), this.eventBus, logPath);
+    const result = await worker.run(taskId, request, [baselineSubtask], workerPath);
+    const changed = subtract(await changedFiles(this.projectRoot), before);
+    const productionChanges = changed.filter((file) => !isTestPath(file));
+    const record: ValidationRecord = {
+      command: "characterization executor",
+      category: "unit",
+      required: true,
+      status: result.success && productionChanges.length === 0 ? "passed" : "failed",
+      exitCode: result.exitCode,
+      outputSummary: productionChanges.length ? `production files changed: ${productionChanges.join(", ")}` : result.summary
+    };
+    const success = record.status === "passed";
+    this.eventBus.publish(success ? "task.baseline.passed" : "task.baseline.failed", { taskId, record }, "runtime");
+    return { success, summary: record.outputSummary ?? result.summary, records: [record] };
   }
 }
 
@@ -314,10 +535,163 @@ function assignSubtasks(subtasks: Subtask[], executorCount: number): Subtask[][]
   return buckets.filter((bucket) => bucket.length > 0);
 }
 
+function assignSubtasksByScope(subtasks: Subtask[], executorCount: number): Subtask[][][] {
+  const assignments = assignSubtasks(subtasks, executorCount);
+  const groups: Subtask[][][] = [];
+
+  for (const assignment of assignments) {
+    const group = groups.find((candidate) => candidate.every((existing) => !scopesOverlap(scopeForSubtasks(existing), scopeForSubtasks(assignment))));
+    if (group) {
+      group.push(assignment);
+    } else {
+      groups.push([assignment]);
+    }
+  }
+
+  return groups;
+}
+
+function scopesForPlan(plan: TaskPlan): FileScope[] {
+  const scopes = [
+    ...(plan.fileOwnership ?? []),
+    ...plan.subtasks.map((task) => task.fileScope).filter((scope): scope is FileScope => Boolean(scope))
+  ];
+  return scopes.length ? scopes : [{ allowedFiles: [], allowedDirectories: ["."] }];
+}
+
+function scopeForSubtasks(subtasks: Subtask[]): FileScope {
+  return mergeScopes(subtasks.map((task) => task.fileScope).filter((scope): scope is FileScope => Boolean(scope)));
+}
+
+function mergeScopes(scopes: FileScope[]): FileScope {
+  return {
+    allowedFiles: unique(scopes.flatMap((scope) => scope.allowedFiles)),
+    allowedDirectories: unique(scopes.flatMap((scope) => scope.allowedDirectories)),
+    readOnlyFiles: unique(scopes.flatMap((scope) => scope.readOnlyFiles ?? [])),
+    forbiddenFiles: unique(scopes.flatMap((scope) => scope.forbiddenFiles ?? []))
+  };
+}
+
+function scopesOverlap(left: FileScope, right: FileScope): boolean {
+  const leftWritable = [...left.allowedFiles, ...left.allowedDirectories];
+  const rightWritable = [...right.allowedFiles, ...right.allowedDirectories];
+  if (!leftWritable.length || !rightWritable.length) return true;
+  return leftWritable.some((item) => rightWritable.some((other) => pathOverlaps(item, other)));
+}
+
+function pathOverlaps(left: string, right: string): boolean {
+  const a = normalizePath(left);
+  const b = normalizePath(right);
+  return a === "." || b === "." || a === b || a.startsWith(`${b}/`) || b.startsWith(`${a}/`);
+}
+
 function executorFailure(results: Array<{ success: boolean; summary: string }>): string | undefined {
   const failed = results.filter((result) => !result.success);
   if (!failed.length) return undefined;
   return `Executor failed before validation:\n${failed.map((result) => `- ${result.summary}`).join("\n")}`;
+}
+
+function publishApprovalStatus(gitPublish: GitPublishResult | undefined): RunSummary["publishApproval"] {
+  if (!gitPublish) return "not_required";
+  if (/rejected/.test(gitPublish.summary)) return "rejected";
+  return gitPublish.attempted ? "approved" : "not_required";
+}
+
+function requiresBaseline(plan: TaskPlan, config: PlatformConfig): boolean {
+  if (plan.nonCodeTask) return false;
+  if (plan.characterizationRequired) return true;
+  if (!config.safety.requireCharacterizationTestsForLegacyChanges) return false;
+  if (plan.riskLevel === "high" || plan.riskLevel === "critical") return true;
+  return Boolean(plan.impactAnalysis?.testCoverageGaps.length || plan.impactAnalysis?.sharedCallers.length);
+}
+
+async function persistPlanArtifacts(root: string, plan: TaskPlan): Promise<void> {
+  await writeArtifact(root, "plan.md", [
+    `# Plan`,
+    "",
+    plan.summary ?? plan.request,
+    "",
+    "## Implementation",
+    ...(plan.implementationPlan?.length ? plan.implementationPlan.map((item) => `- ${item}`) : ["- Not listed."])
+  ].join("\n"));
+  await writeArtifact(root, "impact-analysis.md", JSON.stringify(plan.impactAnalysis ?? {}, null, 2));
+  await writeArtifact(root, "regression-matrix.json", JSON.stringify(plan.regressionMatrix ?? [], null, 2));
+  await writeArtifact(root, "executor-assignments.json", JSON.stringify(plan.subtasks, null, 2));
+}
+
+async function writeArtifact(root: string, name: string, content: string): Promise<void> {
+  await mkdir(root, { recursive: true });
+  const path = join(root, name);
+  await writeFile(`${path}.tmp`, content, "utf8");
+  await rename(`${path}.tmp`, path);
+}
+
+async function changedFiles(projectRoot: string): Promise<string[]> {
+  try {
+    const { stdout } = await execFileAsync("git", ["status", "--porcelain"], { cwd: projectRoot });
+    return stdout
+      .split(/\r?\n/)
+      .map((line) => line.slice(3).trim())
+      .filter(Boolean)
+      .map((line) => normalizePath(line.split(" -> ").at(-1) ?? line));
+  } catch {
+    return [];
+  }
+}
+
+function unapprovedFiles(files: string[], scopes: FileScope[]): string[] {
+  return files.filter((file) => !scopes.some((scope) => isInScope(file, scope)));
+}
+
+function isInScope(file: string, scope: FileScope): boolean {
+  const normalized = normalizePath(file);
+  if (scope.forbiddenFiles?.map(normalizePath).includes(normalized)) return false;
+  if (scope.readOnlyFiles?.map(normalizePath).includes(normalized)) return false;
+  return scope.allowedFiles.map(normalizePath).includes(normalized)
+    || scope.allowedDirectories.map(normalizePath).some((directory) => directory === "." || normalized === directory || normalized.startsWith(`${directory}/`));
+}
+
+function subtract(values: string[], existing: string[]): string[] {
+  const old = new Set(existing);
+  return values.filter((value) => !old.has(value));
+}
+
+function isTestPath(path: string): boolean {
+  return /(^|\/)(__tests__|tests?|e2e)\//.test(path) || /\.spec\./.test(path) || /\.test\./.test(path);
+}
+
+function normalizePath(path: string): string {
+  return path.replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+function repairSummary(validation: { summary: string; validatorResult?: ValidatorResult }): string {
+  const repairs = validation.validatorResult?.requiredRepairs ?? [];
+  if (!repairs.length) return validation.summary;
+  return repairs.map((repair) => [
+    `Repair ${repair.id}`,
+    `Findings: ${repair.findingIds.join(", ")}`,
+    `Severity: ${repair.severity}`,
+    `Expected correction: ${repair.expectedCorrection}`,
+    `Regression scenarios: ${repair.regressionScenarioIds.join(", ")}`
+  ].join("\n")).join("\n\n");
+}
+
+async function waitForGitPublishApproval(path: string): Promise<{ approved: boolean; reason?: string }> {
+  if (process.env.PI_ORCHESTRATION_AUTO_APPROVE_GIT === "true") return { approved: true };
+
+  while (true) {
+    try {
+      const parsed = JSON.parse(await readFile(path, "utf8")) as { approved?: boolean; reason?: string };
+      if (typeof parsed.approved === "boolean") return { approved: parsed.approved, reason: parsed.reason };
+    } catch {
+      // Wait for Pi to approve or reject publishing.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+}
+
+function unique(values: string[]): string[] {
+  return [...new Set(values.filter(Boolean))];
 }
 
 async function ensureLogFile(path: string): Promise<void> {

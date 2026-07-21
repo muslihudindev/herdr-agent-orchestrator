@@ -37,3 +37,32 @@ test("interactive providers can finish when HerdR marker appears in logs", async
   assert.doesNotMatch(source, /waitForAgentDone\(paneId/);
   assert.doesNotMatch(source, /logContains/);
 });
+
+test("interactive providers close panes on timeout", async () => {
+  const source = await readFile("packages/providers/src/ProcessProvider.ts", "utf8");
+
+  assert.match(source, /await this\.closeInteractivePane\(task, pane\.id\);\s+return \{\s+success: false/s);
+  assert.match(source, /private async closeInteractivePane/);
+  assert.match(source, /closePaneOnDone/);
+});
+
+test("interactive provider startup failures are logged instead of crashing orchestration", async () => {
+  const source = await readFile("packages/providers/src/ProcessProvider.ts", "utf8");
+
+  assert.match(source, /private async startInteractiveAgent/);
+  assert.match(source, /catch \(error\)/);
+  assert.match(source, /failed to start interactive/);
+  assert.match(source, /errorMessage\(error\)/);
+  assert.match(source, /return \{ success: false, exitCode: 1, summary \}/);
+});
+
+test("interactive HerdR agent names are unique per spawn", async () => {
+  const source = await readFile("packages/providers/src/ProcessProvider.ts", "utf8");
+
+  assert.match(source, /herdrAgentLabel\(task\)/);
+  assert.match(source, /function herdrAgentLabel\(task: ProviderTask\)/);
+  assert.match(source, /safeMarkerPart\(task\.workerId\).*safeMarkerPart\(task\.taskId\).*createId\("spawn"\)/s);
+  assert.match(source, /starting interactive .* agent \$\{agentLabel\}/);
+  assert.match(source, /failed to start interactive .* agent \$\{agentLabel\}/);
+  assert.doesNotMatch(source, /startAgent\(task\.workerId/);
+});

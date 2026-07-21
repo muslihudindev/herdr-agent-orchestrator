@@ -50,3 +50,9 @@ const RuntimeOrchestrator_1 = require("../packages/runtime/src/RuntimeOrchestrat
     strict_1.default.match(source, /Executor failed before validation/);
     strict_1.default.match(source, /: await this\.validateWithRepair/);
 });
+(0, node_test_1.default)("orchestrator returns a failed summary when the child process exits unexpectedly", async () => {
+    const source = await import("node:fs/promises").then((fs) => fs.readFile("packages/runtime/src/RuntimeOrchestrator.ts", "utf8"));
+    strict_1.default.match(source, /crashedRunSummary\(taskId, request, preplannedPlan\)/);
+    strict_1.default.match(source, /Orchestration process exited unexpectedly before writing summary/);
+    strict_1.default.doesNotMatch(source, /Task Manager exited with \$\{childExitCode/);
+});

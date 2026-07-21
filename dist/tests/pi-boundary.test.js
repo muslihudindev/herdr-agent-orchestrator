@@ -37,13 +37,27 @@ const piExtensionPath = "packages/pi-extension/herdr-orchestration.ts";
     strict_1.default.match(source, /function renderPlanDetail/);
     strict_1.default.match(source, /User clarification/);
 });
-(0, node_test_1.default)("Runtime auto publishes git changes after validation passes", async () => {
+(0, node_test_1.default)("Runtime requires publish approval before git changes in manual mode", async () => {
     const source = await (0, promises_1.readFile)("packages/runtime/src/TaskManagerRuntime.ts", "utf8");
     strict_1.default.match(source, /publishTaskChanges\(this\.projectRoot, taskId, request, \{/);
     strict_1.default.match(source, /commitMessageProvider: this\.providerRegistry\.get\(roles\.providerFor\("validator"\)\)/);
-    strict_1.default.match(source, /gitPublish\.committed && gitPublish\.pushed/);
-    strict_1.default.doesNotMatch(source, /waitForGitPublishApproval/);
-    strict_1.default.doesNotMatch(source, /GitPublishApprovalRequired/);
+    strict_1.default.match(source, /const success = workSucceeded/);
+    strict_1.default.match(source, /Git note:/);
+    strict_1.default.match(source, /waitForGitPublishApproval/);
+    strict_1.default.match(source, /GitPublishApprovalRequired/);
+    strict_1.default.match(source, /publishMode !== "automatic_after_validation"/);
+});
+(0, node_test_1.default)("Pi uses approve and reject for publish approval", async () => {
+    const source = await (0, promises_1.readFile)(piExtensionPath, "utf8");
+    strict_1.default.match(source, /Use \/herdr-approve to approve publishing/);
+    strict_1.default.match(source, /Publish approved/);
+    strict_1.default.match(source, /Publish rejected/);
+});
+(0, node_test_1.default)("Pi marks validated tasks complete even when git publish has errors", async () => {
+    const source = await (0, promises_1.readFile)(piExtensionPath, "utf8");
+    strict_1.default.match(source, /function gitPublishFailed/);
+    strict_1.default.match(source, /Git publish had errors/);
+    strict_1.default.match(source, /finishTask\(queueId, summary\.success \? "complete" : "failed"/);
 });
 (0, node_test_1.default)("Pi passes explicit tribe manager config path to runtime", async () => {
     const source = await (0, promises_1.readFile)(piExtensionPath, "utf8");

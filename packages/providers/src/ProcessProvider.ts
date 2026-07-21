@@ -2,6 +2,7 @@ import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { createId } from "../../shared/src/ids";
 import { ProviderConfig, ProviderExecutionResult, ProviderStatus, ProviderTask } from "../../shared/src/types";
 import { HerdRAdapter } from "../../runtime/src/HerdRAdapter";
 import { Provider } from "./Provider";
@@ -129,11 +130,11 @@ export class ProcessProvider implements Provider {
     );
 
     const completionMarker = interactiveCompletionMarker(task);
-    const pane = await this.herdr.startAgent(task.workerId, cwd, [
-      this.config.command,
-      ...this.config.args,
-      interactivePrompt(task, completionMarker)
-    ]);
+    const pane = await this.startInteractiveAgent(task, cwd, completionMarker);
+    if (!pane) {
+      const summary = `${task.workerId} failed to start interactive ${this.name}`;
+      return { success: false, exitCode: 1, summary };
+    }
     await appendFile(task.logPath, `started interactive ${this.name} agent ${pane.id} with initial prompt\n`, "utf8");
 
     const completed = await waitForInteractiveCompletion(
@@ -146,6 +147,7 @@ export class ProcessProvider implements Provider {
     if (!completed) {
       const summary = `${task.workerId} timed out waiting for interactive ${this.name} after ${timeoutMs}ms`;
       await appendFile(task.logPath, `${summary}\n`, "utf8");
+      await this.closeInteractivePane(task, pane.id);
       return {
         success: false,
         exitCode: 124,
@@ -153,14 +155,7 @@ export class ProcessProvider implements Provider {
       };
     }
 
-    if (this.config.closePaneOnDone) {
-      const closed = await this.herdr.closePane(pane.id);
-      await appendFile(
-        task.logPath,
-        `${closed ? "closed" : "failed to close"} interactive ${this.name} agent ${pane.id}\n`,
-        "utf8"
-      );
-    }
+    await this.closeInteractivePane(task, pane.id);
 
     const summary = `${task.workerId} completed by interactive ${this.name}`;
     await appendFile(task.logPath, `${summary}\n`, "utf8");
@@ -169,6 +164,35 @@ export class ProcessProvider implements Provider {
       exitCode: 0,
       summary
     };
+  }
+
+  private async startInteractiveAgent(task: ProviderTask, cwd: string, completionMarker: string) {
+    const agentLabel = herdrAgentLabel(task);
+    await appendFile(task.logPath, `${task.workerId} starting interactive ${this.name} agent ${agentLabel}\n`, "utf8");
+    try {
+      return await this.herdr.startAgent(agentLabel, cwd, [
+        this.config.command,
+        ...this.config.args,
+        interactivePrompt(task, completionMarker)
+      ]);
+    } catch (error) {
+      await appendFile(
+        task.logPath,
+        `${task.workerId} failed to start interactive ${this.name} agent ${agentLabel}: ${errorMessage(error)}\n`,
+        "utf8"
+      );
+      return undefined;
+    }
+  }
+
+  private async closeInteractivePane(task: ProviderTask, paneId: string): Promise<void> {
+    if (!this.config.closePaneOnDone) return;
+    const closed = await this.herdr.closePane(paneId);
+    await appendFile(
+      task.logPath,
+      `${closed ? "closed" : "failed to close"} interactive ${this.name} agent ${paneId}\n`,
+      "utf8"
+    );
   }
 
   async streamLogs(_taskId: string, _onChunk: (chunk: string) => void): Promise<() => void> {
@@ -202,6 +226,14 @@ function providerCwd(task: ProviderTask): string {
 
 function shellQuote(value: string): string {
   return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function herdrAgentLabel(task: ProviderTask): string {
+  return `${safeMarkerPart(task.workerId)}-${safeMarkerPart(task.taskId)}-${createId("spawn")}`;
 }
 
 function interactivePrompt(task: ProviderTask, completionMarker: string): string {

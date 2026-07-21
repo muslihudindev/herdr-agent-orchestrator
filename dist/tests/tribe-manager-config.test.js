@@ -87,3 +87,9 @@ const TaskManagerWorker_1 = require("../packages/task-manager/src/TaskManagerWor
     strict_1.default.equal((0, TaskManagerWorker_1.isGitRelatedTask)("create a feature branch"), true);
     strict_1.default.equal((0, TaskManagerWorker_1.isGitRelatedTask)("fix the e2e test error"), false);
 });
+(0, node_test_1.default)("parses Tribe task id from HerdR wrapped provider logs", () => {
+    strict_1.default.equal((0, TaskManagerWorker_1.parseTribeTaskId)('HERDR_TRIBE_JSON {"taskId":443}'), 443);
+    strict_1.default.equal((0, TaskManagerWorker_1.parseTribeTaskId)('HERDR_TRIBE_JSON\n{"taskId":505}'), 505);
+    strict_1.default.equal((0, TaskManagerWorker_1.parseTribeTaskId)('{"text":"HERDR_TRIBE_JSON {\\"taskId\\": 464}\\n"}'), 464);
+    strict_1.default.equal((0, TaskManagerWorker_1.parseTribeTaskId)('HERDR_TRIBE_JSON {"taskId": null, "reason": "unavailable"}'), undefined);
+});

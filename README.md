@@ -8,7 +8,7 @@ The user-facing flow is:
 herdr -> pi -> Task Manager (Codex) -> Executors (Claude Code) -> Validator (Claude Code) -> Task Manager -> pi
 ```
 
-You interact only with Pi. Plain task text entered in Pi is queued, routed to HerdR orchestration, implemented by configured backend agents, validated, summarized, committed, and pushed when validation passes. Pi itself does not plan, implement, review, validate, commit, or push.
+You interact only with Pi. Plain task text entered in Pi is queued, routed to HerdR orchestration, investigated by Task Manager, protected with regression controls, implemented by configured backend agents, independently validated, summarized, then committed and pushed only after the configured publish approval. Pi itself does not plan, implement, review, validate, commit, or push.
 
 ## Architecture
 
@@ -114,6 +114,24 @@ todo -> inprogress -> complete
 todo -> inprogress -> failed
 ```
 
+Queue files keep those top-level states for compatibility. New records also carry a detailed safety phase such as `investigating`, `awaiting_plan_approval`, `creating_baseline`, `implementing`, `regression_review`, `awaiting_publish_approval`, or `completed`. Older queue records are migrated in memory when Pi reads them; users do not need to delete `.pi/herdr-orchestration/queue.json`.
+
+The enforced workflow is:
+
+```text
+Request
+  -> Repository Investigation
+  -> Impact Analysis
+  -> Regression Matrix
+  -> Plan Approval
+  -> Safety Baseline
+  -> Implementation
+  -> Validation
+  -> Independent Regression Review
+  -> User Approval
+  -> Commit and Push
+```
+
 If Validator fails after execution, HerdR assigns a repair executor with the validation failure summary, then reruns Validator. If validation still fails after the configured repair attempts, the queue item is marked `failed`, not `complete`.
 
 Extension controls:
@@ -125,16 +143,53 @@ Normal message        Continue a regular Pi conversation
 /herdr-answer <answer> Answer Task Manager clarification questions
 /herdr-confirm        Approve the Task Manager plan and launch workers
 /herdr-plan-detail    Show the full current Task Manager plan
+/herdr-impact         Show impact analysis for the active or pending task
+/herdr-regression-matrix Show regression matrix and coverage status
+/herdr-validation     Show baseline and final validation results
+/herdr-approve-risk   Approve explicitly listed high-risk plan aspects
 /herdr-revise-plan    Request Task Manager to revise the current plan
 /herdr-reject-plan    Reject the Task Manager plan before workers launch
 /herdr-status         Show queue and current orchestration status
 /herdr-queue          Alias for /herdr-status
 /herdr-run-todo       Manually resume stuck todo tasks
 /herdr-retry-failed <queue-id> Requeue a failed task for rework
-/herdr-approve        Approve completed work
-/herdr-reject         Reject completed work
+/herdr-approve        Approve validated work for publishing
+/herdr-reject         Reject validated work before publishing
 /herdr-clear-complete Remove completed tasks from the queue file
 /herdr-reset-inprogress Move stuck in-progress tasks back to todo
+```
+
+Safety and publishing defaults live in `config/providers.yaml`:
+
+```yaml
+safety:
+  require_impact_analysis: true
+  require_regression_matrix: true
+  require_characterization_tests_for_legacy_changes: true
+  require_independent_validation: true
+
+validation:
+  maximum_repair_attempts: 2
+
+git:
+  publish_mode: manual_approval
+```
+
+`git.publish_mode` supports `manual_approval`, `automatic_after_validation`, `commit_only_after_approval`, and `disabled`. The safe default is `manual_approval`: after Validator passes, Pi asks for `/herdr-approve` before commit and push.
+
+Task artifacts are persisted under:
+
+```text
+.pi/herdr-orchestration/tasks/<task-id>/
+  request.md
+  impact-analysis.md
+  regression-matrix.json
+  plan.md
+  baseline-validation.json
+  executor-assignments.json
+  validator-results.json
+  final-validation.json
+  final-report.md
 ```
 
 ## HerdR Integration
@@ -148,6 +203,8 @@ When running inside a HerdR-managed pane, the provider layer creates panes for r
 Outside HerdR, providers run as local child processes. Inside HerdR, provider commands open in HerdR panes.
 
 Pi still does not plan, implement, or validate in the user-facing session.
+
+Interactive HerdR agent labels are unique per spawn, using the worker id, HerdR task id, and a short spawn id. This prevents collisions when multiple projects or retries use common role names like `validator` or `executor-001`.
 
 The HerdR adapter is intentionally thin. HerdR owns pane creation and lifecycle; this platform owns provider-agnostic task routing and event flow.
 
@@ -243,11 +300,15 @@ When an objective is configured with `objective_id` and `user_id`, HerdR uses Cl
 
 Pi stores and displays the Tribe Manager sync result for each completed queue item. If `config/tribe-manager.yaml` only has `objective` text and no numeric `objective_id`/`user_id`, Pi will report that sync was skipped instead of silently marking the local task as complete.
 
+`config/tribe-manager.yaml` is loaded when a task is planned or executed. Editing the YAML content does not require restarting Pi; new tasks and newly started queued tasks use the updated file. Restart Pi only when changing the config path environment variable, such as `PI_ORCHESTRATION_TRIBE_MANAGER_PATH`.
+
+If the provider session cannot access the `tribe_manager` MCP tool, the task still runs but completion sync is skipped because no Tribe task id exists. When a create succeeds, HerdR captures `HERDR_TRIBE_JSON` whether the JSON is same-line, multi-line, or wrapped by HerdR log JSON.
+
 ## Git Publishing
 
-After Validator passes, HerdR automatically discovers changed git repositories under the current project folder, commits changed files in each repo, and pushes the current branch to every configured remote for that repo. If the project folder contains multiple repo folders, each changed repo is handled independently. If validation fails, HerdR does not commit or push.
+After Validator passes, HerdR discovers changed git repositories under the current project folder and waits for the configured publish mode. In the default `manual_approval` mode, `/herdr-approve` commits changed files in each repo and pushes the current branch to every configured remote for that repo. If the project folder contains multiple repo folders, each changed repo is handled independently. If validation fails, HerdR does not commit or push.
 
-Commit subjects are generated by the configured Validator provider from staged code changes, not from the raw task text. The provider receives staged file names, diff stat, and a truncated staged diff, then returns `HERDR_COMMIT_JSON {"subject":"..."}`. If the provider fails or returns an invalid subject, HerdR falls back to a local staged-path heuristic. Existing conventional commit prefixes from repo history are preserved when available.
+Commit subjects are generated by the configured Validator provider from the task intent plus staged code changes. The staged diff is the source of truth; the task text is context and must not be copied verbatim. The provider receives the original task, staged file names, diff stat, and a truncated staged diff, then returns `HERDR_COMMIT_JSON {"subject":"..."}`. If the provider fails or returns an invalid subject, HerdR falls back to a local staged-path heuristic. Existing conventional commit prefixes from repo history are preserved when available.
 
 Pi prints the validation, git publish, and Tribe Manager sync summaries when the task finishes.
 

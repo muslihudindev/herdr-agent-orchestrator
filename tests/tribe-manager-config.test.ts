@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { TribeManagerConfigLoader } from "../packages/config/src/TribeManagerConfigLoader";
-import { isGitRelatedTask } from "../packages/task-manager/src/TaskManagerWorker";
+import { isGitRelatedTask, parseTribeTaskId } from "../packages/task-manager/src/TaskManagerWorker";
 
 test("loads tribe manager objective by project path", async () => {
   const root = join("/tmp", `tribe-manager-${Date.now()}`);
@@ -112,4 +112,11 @@ test("detects git-related tasks for tribe manager exclusion", () => {
   assert.equal(isGitRelatedTask("commit then push it"), true);
   assert.equal(isGitRelatedTask("create a feature branch"), true);
   assert.equal(isGitRelatedTask("fix the e2e test error"), false);
+});
+
+test("parses Tribe task id from HerdR wrapped provider logs", () => {
+  assert.equal(parseTribeTaskId('HERDR_TRIBE_JSON {"taskId":443}'), 443);
+  assert.equal(parseTribeTaskId('HERDR_TRIBE_JSON\n{"taskId":505}'), 505);
+  assert.equal(parseTribeTaskId('{"text":"HERDR_TRIBE_JSON {\\"taskId\\": 464}\\n"}'), 464);
+  assert.equal(parseTribeTaskId('HERDR_TRIBE_JSON {"taskId": null, "reason": "unavailable"}'), undefined);
 });
